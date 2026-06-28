@@ -1,0 +1,4 @@
+Contact: https://ma0.dev/#contact
+Preferred-Languages: ja, en
+Canonical: https://ma0.dev/.well-known/security.txt
+Expires: 2027-06-28T00:00:00Z
