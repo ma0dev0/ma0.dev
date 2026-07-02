@@ -171,9 +171,16 @@ small {
 
 .hero {
   display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(340px, 1.1fr);
   align-content: end;
+  align-items: center;
+  gap: clamp(32px, 6vw, 76px);
   min-height: min(720px, calc(100vh - 92px));
   padding: 104px 0 76px;
+}
+
+.hero-content {
+  min-width: 0;
 }
 
 .hero-copy {
@@ -202,6 +209,23 @@ small {
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 30px;
+}
+
+.hero-visual {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.hero-visual img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1400 / 788;
+  object-fit: cover;
 }
 
 .button {
@@ -331,9 +355,25 @@ small {
 }
 
 .project-card {
-  min-height: 240px;
-  display: grid;
-  align-content: start;
+  display: flex;
+  min-height: 360px;
+  flex-direction: column;
+}
+
+.project-image {
+  margin: 0 0 22px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  overflow: hidden;
+}
+
+.project-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
 }
 
 .project-meta {
@@ -371,6 +411,12 @@ small {
   border-color: var(--line-hover);
   background: var(--accent-soft);
   text-decoration: none;
+}
+
+.project-actions {
+  margin-top: auto;
+  margin-bottom: 0;
+  padding-top: 8px;
 }
 
 .status {
@@ -496,6 +542,7 @@ small {
   }
 
   .hero {
+    grid-template-columns: 1fr;
     min-height: auto;
     padding-top: 64px;
   }
