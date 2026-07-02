@@ -8,7 +8,10 @@
   <meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)">
   <title>ma0 tools | Small OSS tools for work automation</title>
   <meta name="description" content="ma0 toolsは、業務自動化とAI-ready contextのための小さなOSS・開発者向けツールを作る個人開発プロジェクトです。">
-  <link rel="alternate" hreflang="en" href="/en/">
+  <link rel="canonical" href="https://ma0.dev/">
+  <link rel="alternate" hreflang="ja" href="https://ma0.dev/">
+  <link rel="alternate" hreflang="en" href="https://ma0.dev/en/">
+  <link rel="alternate" hreflang="x-default" href="https://ma0.dev/">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/style.css">
 </head>
@@ -28,11 +31,20 @@
 
   <main>
     <section class="hero">
-      <p class="eyebrow">Personal OSS / developer tools</p>
-      <h1>ma0 tools</h1>
-      <p class="hero-copy">Small OSS tools for work automation and AI-ready context.</p>
-      <p>業務ツールの情報を、AIに渡しやすい形へ整える小さなOSS・開発者向けツールを作っています。</p>
-      <p class="tagline">猫の手も借りたい仕事に、小さな開発者ツールを。</p>
+      <div class="hero-content">
+        <p class="eyebrow">Personal OSS / developer tools</p>
+        <h1>ma0 tools</h1>
+        <p class="hero-copy">Small OSS tools for work automation and AI-ready context.</p>
+        <p>業務ツールの情報を、AIに渡しやすい形へ整える小さなOSS・開発者向けツールを作っています。</p>
+        <p class="tagline">猫の手も借りたい仕事に、小さな開発者ツールを。</p>
+        <div class="hero-actions" aria-label="主要リンク">
+          <a class="button primary-button" href="#projects">作品を見る</a>
+          <a class="button secondary-button" href="https://github.com/ma0dev0" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+      </div>
+      <figure class="hero-visual">
+        <img src="/assets/ma0-tools-hero.webp" alt="ma0 toolsの小さな開発者ツール群を表す抽象ビジュアル" width="1400" height="788" fetchpriority="high">
+      </figure>
     </section>
 
     <section id="links" class="section">
@@ -74,20 +86,28 @@
       </div>
       <div class="card-grid">
         <article class="card project-card">
+          <figure class="project-image">
+            <img src="/assets/desktop-usage-meter.webp" alt="Desktop Usage Meterの使用量メーターを表すビジュアル" width="900" height="600" loading="lazy" decoding="async">
+          </figure>
           <div class="card-top">
             <h3>Desktop Usage Meter</h3>
             <span class="status">公開中</span>
           </div>
+          <p class="project-meta">Desktop app / Electron</p>
           <p>Claude と Codex の使用量を、デスクトップ上で小さく見えるメーターにする常駐ツールです。</p>
-          <p><a href="https://github.com/ma0dev0/desktop-usage-meter" target="_blank" rel="noopener noreferrer">GitHubで見る</a></p>
+          <p class="project-actions"><a class="project-link" href="https://github.com/ma0dev0/desktop-usage-meter" target="_blank" rel="noopener noreferrer">GitHubで見る</a></p>
         </article>
         <article class="card project-card">
+          <figure class="project-image">
+            <img src="/assets/quiet-links.webp" alt="Quiet Linksのリンクダッシュボードを表すビジュアル" width="900" height="600" loading="lazy" decoding="async">
+          </figure>
           <div class="card-top">
             <h3>Quiet Links</h3>
             <span class="status">公開中</span>
           </div>
+          <p class="project-meta">Static site / Link dashboard</p>
           <p>静かな配色で使える、個人向けのリンクダッシュボードです。</p>
-          <p><a href="https://github.com/ma0dev0/quiet-links" target="_blank" rel="noopener noreferrer">GitHubで見る</a></p>
+          <p class="project-actions"><a class="project-link" href="https://github.com/ma0dev0/quiet-links" target="_blank" rel="noopener noreferrer">GitHubで見る</a></p>
         </article>
       </div>
     </section>
