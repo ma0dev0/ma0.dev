@@ -270,7 +270,8 @@ small {
 }
 
 .nav-list a:hover,
-.nav-list a:focus {
+.nav-list a:focus,
+.nav-list a[aria-current="true"] {
   color: var(--text);
   background: var(--surface-soft);
   text-decoration: none;
@@ -352,6 +353,7 @@ small {
 }
 
 .button {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -361,6 +363,7 @@ small {
   padding: 10px 18px;
   font-weight: 760;
   text-decoration: none;
+  overflow: hidden;
   transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease, background 180ms ease;
 }
 
@@ -430,6 +433,7 @@ small {
 }
 
 .card {
+  position: relative;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
@@ -437,6 +441,35 @@ small {
   padding: 24px;
   backdrop-filter: blur(18px) saturate(140%);
   transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease, background 180ms ease, opacity 180ms ease;
+}
+
+.enhanced .card::before,
+.enhanced .link-button::before,
+.enhanced .button::before,
+.enhanced .project-link::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%),
+      rgb(255 255 255 / 0.14),
+      transparent 38%
+    );
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.enhanced .card:hover::before,
+.enhanced .card:focus-within::before,
+.enhanced .link-button:hover::before,
+.enhanced .link-button:focus::before,
+.enhanced .button:hover::before,
+.enhanced .button:focus::before,
+.enhanced .project-link:hover::before,
+.enhanced .project-link:focus::before {
+  opacity: 1;
 }
 
 .link-card {
@@ -538,6 +571,7 @@ small {
 }
 
 .project-link {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -548,6 +582,7 @@ small {
   color: var(--text);
   font-weight: 760;
   text-decoration: none;
+  overflow: hidden;
   transition: border-color 180ms ease, background 180ms ease, transform 180ms ease;
 }
 
@@ -633,6 +668,7 @@ small {
 }
 
 .link-button {
+  position: relative;
   display: block;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -642,6 +678,7 @@ small {
   color: var(--text);
   text-decoration: none;
   backdrop-filter: blur(18px) saturate(140%);
+  overflow: hidden;
   transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
 }
 
