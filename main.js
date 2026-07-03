@@ -8,24 +8,42 @@ const startEnhancements = () => {
 
   document.documentElement.classList.add("enhanced");
 
-  const moveToHash = (hash) => {
+  const navLinks = Array.from(document.querySelectorAll(".nav-list a[href^='#']"));
+  const navById = new Map(navLinks.map((link) => [link.hash.slice(1), link]));
+
+  const setCurrentNav = (id) => {
+    if (navLinks.length === 0) {
+      return;
+    }
+
+    navLinks.forEach((link) => link.removeAttribute("aria-current"));
+    navById.get(id)?.setAttribute("aria-current", "true");
+  };
+
+  const getHashTarget = (hash) => {
     let id = hash.slice(1);
 
     try {
       id = decodeURIComponent(id);
     } catch {
-      return;
+      return null;
     }
 
-    const target = document.getElementById(id);
+    return document.getElementById(id);
+  };
 
+  const moveToHash = (hash, target = getHashTarget(hash)) => {
     if (!target) {
       return;
     }
 
     const scroll = () => {
+      setCurrentNav(target.id);
       target.scrollIntoView({ behavior: "smooth", block: "start" });
-      history.pushState(null, "", hash);
+
+      if (location.hash !== hash) {
+        history.pushState(null, "", hash);
+      }
     };
 
     if (document.startViewTransition) {
@@ -44,14 +62,25 @@ const startEnhancements = () => {
       return;
     }
 
+    const targetElement = getHashTarget(link.hash);
+
+    if (!targetElement) {
+      return;
+    }
+
     event.preventDefault();
-    moveToHash(link.hash);
+    moveToHash(link.hash, targetElement);
   });
 
-  const navLinks = Array.from(document.querySelectorAll(".nav-list a[href^='#']"));
+  if (location.hash) {
+    const currentTarget = getHashTarget(location.hash);
+
+    if (currentTarget) {
+      setCurrentNav(currentTarget.id);
+    }
+  }
 
   if ("IntersectionObserver" in window && navLinks.length > 0) {
-    const navById = new Map(navLinks.map((link) => [link.hash.slice(1), link]));
     const sections = Array.from(navById.keys(), (id) => document.getElementById(id)).filter(Boolean);
 
     const observer = new IntersectionObserver(
@@ -64,8 +93,7 @@ const startEnhancements = () => {
           return;
         }
 
-        navLinks.forEach((link) => link.removeAttribute("aria-current"));
-        navById.get(current.target.id)?.setAttribute("aria-current", "true");
+        setCurrentNav(current.target.id);
       },
       {
         rootMargin: "-28% 0px -58% 0px",
@@ -77,21 +105,52 @@ const startEnhancements = () => {
   }
 
   const reactiveItems = document.querySelectorAll(".card, .link-button, .button, .project-link");
+  const frames = new WeakMap();
+  const points = new WeakMap();
 
   reactiveItems.forEach((item) => {
     item.addEventListener("pointermove", (event) => {
       const rect = item.getBoundingClientRect();
+
+      if (rect.width === 0 || rect.height === 0) {
+        return;
+      }
+
       const x = ((event.clientX - rect.left) / rect.width) * 100;
       const y = ((event.clientY - rect.top) / rect.height) * 100;
 
-      item.style.setProperty("--spotlight-x", `${x.toFixed(2)}%`);
-      item.style.setProperty("--spotlight-y", `${y.toFixed(2)}%`);
-    });
+      points.set(item, { x, y });
+
+      if (frames.has(item)) {
+        return;
+      }
+
+      const frame = requestAnimationFrame(() => {
+        const point = points.get(item);
+
+        if (point) {
+          item.style.setProperty("--spotlight-x", `${point.x.toFixed(2)}%`);
+          item.style.setProperty("--spotlight-y", `${point.y.toFixed(2)}%`);
+        }
+
+        frames.delete(item);
+      });
+
+      frames.set(item, frame);
+    }, { passive: true });
 
     item.addEventListener("pointerleave", () => {
+      const frame = frames.get(item);
+
+      if (frame) {
+        cancelAnimationFrame(frame);
+      }
+
+      frames.delete(item);
+      points.delete(item);
       item.style.removeProperty("--spotlight-x");
       item.style.removeProperty("--spotlight-y");
-    });
+    }, { passive: true });
   });
 };
 
