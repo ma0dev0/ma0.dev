@@ -1,6 +1,63 @@
+// Contact: assemble the address from parts (kept out of the raw HTML for spam
+// hygiene), swap the obfuscated text for a real mailto link, and add a copy button.
+const enhanceContact = () => {
+  const el = document.querySelector(".contact-address[data-user][data-domain]");
+
+  if (!el) {
+    return;
+  }
+
+  const email = `${el.dataset.user}@${el.dataset.domain}`;
+  const ja = document.documentElement.lang.startsWith("ja");
+  const labels = ja
+    ? { copy: "コピー", copied: "コピーしました", aria: "メールアドレスをコピー" }
+    : { copy: "Copy", copied: "Copied", aria: "Copy email address" };
+
+  const link = document.createElement("a");
+  link.className = "contact-email";
+  link.href = `mailto:${email}`;
+  link.textContent = email;
+
+  el.textContent = "";
+  el.append(link);
+
+  if (!navigator.clipboard) {
+    return;
+  }
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "contact-copy";
+  button.textContent = labels.copy;
+  button.setAttribute("aria-label", labels.aria);
+
+  let resetTimer = null;
+
+  button.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(email);
+      button.textContent = labels.copied;
+      button.classList.add("is-copied");
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => {
+        button.textContent = labels.copy;
+        button.classList.remove("is-copied");
+      }, 2000);
+    } catch {
+      /* clipboard blocked — the mailto link is still available */
+    }
+  });
+
+  el.append(button);
+};
+
 const startEnhancements = () => {
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const saveData = navigator.connection?.saveData === true;
+
+  // Functional, not decorative — enhance before the motion gate so every visitor
+  // gets a real mailto link and copy button.
+  enhanceContact();
 
   if (prefersReducedMotion.matches || saveData) {
     return;
@@ -104,8 +161,10 @@ const startEnhancements = () => {
     sections.forEach((section) => observer.observe(section));
   }
 
-  // Spotlight position drives the inner wash, the border glow, and the hero glare.
-  const reactiveItems = document.querySelectorAll(".card, .link-button, .button, .project-link, .hero-visual");
+  // Spotlight position drives the inner wash and the border ring glow (CSS
+  // handles the opacity transition on :hover/:focus-within — this only tracks
+  // pointer position via custom properties).
+  const reactiveItems = document.querySelectorAll(".card, .link-button");
   const frames = new WeakMap();
   const points = new WeakMap();
 
@@ -156,56 +215,58 @@ const startEnhancements = () => {
 
   startTilt();
   startMagneticButtons();
-  startHeroField(prefersReducedMotion);
+  startAuroraField(prefersReducedMotion);
+  startParticleField();
 };
 
-// 3D tilt on the hero visual, driven by pointer position.
+// 3D tilt on project cards, driven by pointer position. Runs alongside the
+// spotlight listener above (same precedent as the old hero-visual tilt).
 const startTilt = () => {
-  const visual = document.querySelector(".hero-visual");
-
-  if (!visual || !window.matchMedia("(hover: hover)").matches) {
+  if (!window.matchMedia("(hover: hover)").matches) {
     return;
   }
 
-  let frame = null;
-  let point = null;
+  document.querySelectorAll(".project-card").forEach((card) => {
+    let frame = null;
+    let point = null;
 
-  visual.addEventListener("pointermove", (event) => {
-    const rect = visual.getBoundingClientRect();
+    card.addEventListener("pointermove", (event) => {
+      const rect = card.getBoundingClientRect();
 
-    if (rect.width === 0 || rect.height === 0) {
-      return;
-    }
-
-    point = {
-      x: (event.clientX - rect.left) / rect.width - 0.5,
-      y: (event.clientY - rect.top) / rect.height - 0.5
-    };
-
-    if (frame) {
-      return;
-    }
-
-    frame = requestAnimationFrame(() => {
-      if (point) {
-        visual.style.setProperty("--tilt-x", `${(-point.y * 6).toFixed(2)}deg`);
-        visual.style.setProperty("--tilt-y", `${(point.x * 8).toFixed(2)}deg`);
+      if (rect.width === 0 || rect.height === 0) {
+        return;
       }
 
-      frame = null;
-    });
-  }, { passive: true });
+      point = {
+        x: (event.clientX - rect.left) / rect.width - 0.5,
+        y: (event.clientY - rect.top) / rect.height - 0.5
+      };
 
-  visual.addEventListener("pointerleave", () => {
-    if (frame) {
-      cancelAnimationFrame(frame);
-      frame = null;
-    }
+      if (frame) {
+        return;
+      }
 
-    point = null;
-    visual.style.removeProperty("--tilt-x");
-    visual.style.removeProperty("--tilt-y");
-  }, { passive: true });
+      frame = requestAnimationFrame(() => {
+        if (point) {
+          card.style.setProperty("--tilt-x", `${(-point.y * 5).toFixed(2)}deg`);
+          card.style.setProperty("--tilt-y", `${(point.x * 7).toFixed(2)}deg`);
+        }
+
+        frame = null;
+      });
+    }, { passive: true });
+
+    card.addEventListener("pointerleave", () => {
+      if (frame) {
+        cancelAnimationFrame(frame);
+        frame = null;
+      }
+
+      point = null;
+      card.style.removeProperty("--tilt-x");
+      card.style.removeProperty("--tilt-y");
+    }, { passive: true });
+  });
 };
 
 // Hero buttons lean toward the cursor and spring back on leave.
@@ -216,7 +277,7 @@ const startMagneticButtons = () => {
 
   document.querySelectorAll(".hero-actions .button").forEach((button) => {
     const strength = 0.22;
-    const limit = 7;
+    const limit = 8;
 
     button.addEventListener("pointermove", (event) => {
       const rect = button.getBoundingClientRect();
@@ -234,51 +295,282 @@ const startMagneticButtons = () => {
   });
 };
 
-// Constellation field behind the hero. Pauses offscreen and in hidden tabs.
-const startHeroField = (prefersReducedMotion) => {
-  const canvas = document.querySelector(".hero-field");
-  const context = canvas?.getContext("2d");
+// Aurora: a fixed full-viewport WebGL fbm-noise field behind the whole page.
+// Pauses in hidden tabs; position:fixed means it's always "in view" by definition.
+const startAuroraField = (prefersReducedMotion) => {
+  const canvas = document.querySelector(".aurora-canvas");
+  const gl = canvas?.getContext("webgl", { alpha: true, antialias: false });
 
-  if (!canvas || !context) {
+  if (!canvas || !gl) {
     return;
   }
 
-  const darkScheme = window.matchMedia("(prefers-color-scheme: dark)");
-  const pointerFine = window.matchMedia("(pointer: fine)").matches;
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const linkDistance = 130;
+  const vertexSource = "attribute vec2 a; void main(){ gl_Position = vec4(a, 0.0, 1.0); }";
+  const fragmentSource = [
+    "precision highp float;",
+    "uniform vec2 u_res; uniform float u_time; uniform vec2 u_ptr; uniform float u_int;",
+    "float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }",
+    "float noise(vec2 p){ vec2 i = floor(p); vec2 f = fract(p); vec2 u = f*f*(3.0-2.0*f);",
+    "  return mix(mix(hash(i), hash(i+vec2(1.0,0.0)), u.x), mix(hash(i+vec2(0.0,1.0)), hash(i+vec2(1.0,1.0)), u.x), u.y); }",
+    "float fbm(vec2 p){ float v = 0.0; float a = 0.5; for(int i=0;i<5;i++){ v += a*noise(p); p *= 2.03; a *= 0.5; } return v; }",
+    "void main(){",
+    "  vec2 uv = gl_FragCoord.xy / u_res;",
+    "  vec2 p = uv * vec2(u_res.x/u_res.y, 1.0);",
+    "  float t = u_time * 0.045;",
+    "  vec2 drift = (u_ptr - 0.5) * 0.35;",
+    "  float n1 = fbm(p*1.35 + vec2(t*0.7, -t*0.45) + drift);",
+    "  float n2 = fbm(p*2.1 - vec2(t*0.32, t*0.58) - drift*0.6);",
+    "  float n3 = fbm(p*1.7 + vec2(-t*0.5, t*0.35));",
+    "  vec3 cyan = vec3(0.30, 0.85, 0.95);",
+    "  vec3 magenta = vec3(0.88, 0.42, 0.90);",
+    "  vec3 mint = vec3(0.40, 0.92, 0.65);",
+    "  vec3 col = cyan * smoothstep(0.42, 0.95, n1)",
+    "           + magenta * smoothstep(0.50, 1.0, n2) * 0.75",
+    "           + mint * smoothstep(0.55, 1.0, n3 * n1 * 1.8) * 0.55;",
+    "  float vert = smoothstep(0.05, 1.05, uv.y);",
+    "  gl_FragColor = vec4(col * u_int * vert * 0.42, 1.0) * (u_int * vert);",
+    "}"
+  ].join("\n");
 
+  const compile = (type, source) => {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    return shader;
+  };
+
+  const program = gl.createProgram();
+  gl.attachShader(program, compile(gl.VERTEX_SHADER, vertexSource));
+  gl.attachShader(program, compile(gl.FRAGMENT_SHADER, fragmentSource));
+  gl.linkProgram(program);
+
+  if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+    return;
+  }
+
+  gl.useProgram(program);
+
+  const buffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const positionLoc = gl.getAttribLocation(program, "a");
+  gl.enableVertexAttribArray(positionLoc);
+  gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
+
+  const uRes = gl.getUniformLocation(program, "u_res");
+  const uTime = gl.getUniformLocation(program, "u_time");
+  const uPtr = gl.getUniformLocation(program, "u_ptr");
+  const uInt = gl.getUniformLocation(program, "u_int");
+
+  const intensity = 0.65;
+  let frame = null;
+  let pointer = { x: 0.5, y: 0.5 };
+  let smooth = { x: 0.5, y: 0.5 };
+  const start = performance.now();
+
+  const resize = () => {
+    const w = Math.max(2, Math.round(canvas.clientWidth * 0.5));
+    const h = Math.max(2, Math.round(canvas.clientHeight * 0.5));
+
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+      gl.viewport(0, 0, w, h);
+    }
+  };
+
+  const step = () => {
+    frame = null;
+
+    if (document.hidden) {
+      return;
+    }
+
+    resize();
+    smooth.x += (pointer.x - smooth.x) * 0.03;
+    smooth.y += (pointer.y - smooth.y) * 0.03;
+
+    gl.uniform2f(uRes, canvas.width, canvas.height);
+    gl.uniform1f(uTime, (performance.now() - start) / 1000);
+    gl.uniform2f(uPtr, smooth.x, 1 - smooth.y);
+    gl.uniform1f(uInt, intensity);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+    frame = requestAnimationFrame(step);
+  };
+
+  const play = () => {
+    if (!frame && !document.hidden) {
+      frame = requestAnimationFrame(step);
+    }
+  };
+
+  const pause = () => {
+    if (frame) {
+      cancelAnimationFrame(frame);
+      frame = null;
+    }
+  };
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      pause();
+    } else {
+      play();
+    }
+  });
+
+  window.addEventListener("pointermove", (event) => {
+    pointer = { x: event.clientX / window.innerWidth, y: event.clientY / window.innerHeight };
+  }, { passive: true });
+
+  prefersReducedMotion.addEventListener?.("change", () => {
+    if (prefersReducedMotion.matches) {
+      pause();
+    } else {
+      play();
+    }
+  });
+
+  play();
+};
+
+// Particle field: canvas 2D dots that morph between "ma0", a paw shape, and
+// "OSS", drawn by sampling an offscreen canvas. Reacts to pointer proximity
+// and click bursts inside the hero visual.
+const startParticleField = () => {
+  const canvas = document.querySelector(".particle-canvas");
+  const ctx = canvas?.getContext("2d");
+  const field = canvas?.closest(".hero-visual");
+
+  if (!canvas || !ctx || !field) {
+    return;
+  }
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
   let width = 0;
   let height = 0;
-  let particles = [];
   let frame = null;
   let visible = true;
-  let pointer = { x: 0.5, y: 0.5 };
-  let drift = { x: 0.5, y: 0.5 };
+  let particles = [];
+  let shapes = [];
+  let shapeIndex = 0;
+  let fieldPointer = null;
+  let burstAt = null;
 
-  const palette = () => (darkScheme.matches
-    ? { dot: [168, 182, 255], line: [150, 165, 255] }
-    : { dot: [82, 98, 210], line: [96, 112, 220] });
+  const colorFor = () => {
+    const r = Math.random();
+
+    if (r < 0.46) return "rgba(96, 218, 240,";
+    if (r < 0.72) return "rgba(235, 240, 252,";
+    if (r < 0.9) return "rgba(226, 120, 224,";
+    return "rgba(120, 235, 175,";
+  };
+
+  const samplePoints = (draw) => {
+    const s = 480;
+    const off = document.createElement("canvas");
+    off.width = s;
+    off.height = s;
+    const offCtx = off.getContext("2d");
+    offCtx.fillStyle = "#fff";
+    draw(offCtx, s);
+
+    const data = offCtx.getImageData(0, 0, s, s).data;
+    const points = [];
+    const step = 3;
+
+    for (let y = 0; y < s; y += step) {
+      for (let x = 0; x < s; x += step) {
+        if (data[(y * s + x) * 4 + 3] > 128) {
+          points.push({ x: x / s, y: y / s });
+        }
+      }
+    }
+
+    for (let i = points.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = points[i];
+      points[i] = points[j];
+      points[j] = t;
+    }
+
+    return points;
+  };
+
+  const buildShapes = () => {
+    const drawText = (text, size) => (c, s) => {
+      c.font = `700 ${Math.floor(s * size)}px "Instrument Sans", system-ui, sans-serif`;
+      c.textAlign = "center";
+      c.textBaseline = "middle";
+      c.fillText(text, s / 2, s * 0.52);
+    };
+
+    const drawPaw = (c, s) => {
+      const cx = s / 2;
+      const cy = s * 0.6;
+
+      const ellipse = (x, y, rx, ry) => {
+        c.beginPath();
+        c.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+        c.fill();
+      };
+
+      ellipse(cx, cy, s * 0.155, s * 0.13);
+      ellipse(cx - s * 0.175, cy - s * 0.135, s * 0.055, s * 0.072);
+      ellipse(cx - s * 0.062, cy - s * 0.205, s * 0.056, s * 0.075);
+      ellipse(cx + s * 0.062, cy - s * 0.205, s * 0.056, s * 0.075);
+      ellipse(cx + s * 0.175, cy - s * 0.135, s * 0.055, s * 0.072);
+    };
+
+    shapes = [
+      samplePoints(drawText("ma0", 0.36)),
+      samplePoints(drawPaw),
+      samplePoints(drawText("OSS", 0.34))
+    ];
+  };
+
+  const density = () => (window.innerWidth < 560 ? 0.55 : 1);
+
+  const assign = () => {
+    const points = shapes[shapeIndex];
+
+    if (!points || points.length === 0) {
+      return;
+    }
+
+    particles.forEach((particle, i) => {
+      const target = points[i % points.length];
+      particle.tx = target.x;
+      particle.ty = target.y;
+    });
+  };
+
+  const build = () => {
+    buildShapes();
+    const count = Math.round(1300 * density());
+
+    particles = Array.from({ length: count }, () => ({
+      x: Math.random(),
+      y: Math.random(),
+      vx: 0,
+      vy: 0,
+      r: 0.7 + Math.random() * 1.3,
+      c: colorFor(),
+      a: 0.5 + Math.random() * 0.5
+    }));
+
+    assign();
+  };
 
   const resize = () => {
     const rect = canvas.getBoundingClientRect();
-
     width = rect.width;
     height = rect.height;
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
-    context.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-    const count = Math.min(110, Math.round((width * height) / 12000));
-
-    particles = Array.from({ length: count }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.22,
-      vy: (Math.random() - 0.5) * 0.22,
-      r: 0.8 + Math.random() * 1.4,
-      depth: 0.35 + Math.random() * 0.65
-    }));
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, width, height);
   };
 
   const step = () => {
@@ -288,62 +580,61 @@ const startHeroField = (prefersReducedMotion) => {
       return;
     }
 
-    const colors = palette();
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.fillStyle = "rgba(0, 0, 0, 0.28)";
+    ctx.fillRect(0, 0, width, height);
+    ctx.globalCompositeOperation = "lighter";
 
-    drift.x += (pointer.x - drift.x) * 0.04;
-    drift.y += (pointer.y - drift.y) * 0.04;
-
-    context.clearRect(0, 0, width, height);
+    const burst = burstAt;
+    burstAt = null;
 
     for (const p of particles) {
-      p.x += p.vx;
-      p.y += p.vy;
+      const tx = p.tx * width;
+      const ty = p.ty * height;
+      const px = p.x * width;
+      const py = p.y * height;
+      p.vx += (tx - px) * 0.014;
+      p.vy += (ty - py) * 0.014;
 
-      if (p.x < -10) p.x = width + 10;
-      if (p.x > width + 10) p.x = -10;
-      if (p.y < -10) p.y = height + 10;
-      if (p.y > height + 10) p.y = -10;
-    }
+      if (fieldPointer) {
+        const dx = px - fieldPointer.x;
+        const dy = py - fieldPointer.y;
+        const d2 = dx * dx + dy * dy;
+        const radius = 110;
 
-    const offsetX = (drift.x - 0.5) * 26;
-    const offsetY = (drift.y - 0.5) * 18;
-
-    for (let i = 0; i < particles.length; i += 1) {
-      const a = particles[i];
-      const ax = a.x + offsetX * a.depth;
-      const ay = a.y + offsetY * a.depth;
-
-      for (let j = i + 1; j < particles.length; j += 1) {
-        const b = particles[j];
-        const bx = b.x + offsetX * b.depth;
-        const by = b.y + offsetY * b.depth;
-        const dx = ax - bx;
-        const dy = ay - by;
-        const distance = Math.hypot(dx, dy);
-
-        if (distance < linkDistance) {
-          const alpha = (1 - distance / linkDistance) * 0.2;
-
-          context.strokeStyle = `rgba(${colors.line[0]}, ${colors.line[1]}, ${colors.line[2]}, ${alpha.toFixed(3)})`;
-          context.lineWidth = 1;
-          context.beginPath();
-          context.moveTo(ax, ay);
-          context.lineTo(bx, by);
-          context.stroke();
+        if (d2 < radius * radius && d2 > 0.01) {
+          const d = Math.sqrt(d2);
+          const f = (1 - d / radius) * 2.6;
+          p.vx += (dx / d) * f;
+          p.vy += (dy / d) * f;
         }
       }
 
-      context.fillStyle = `rgba(${colors.dot[0]}, ${colors.dot[1]}, ${colors.dot[2]}, ${(0.35 + a.depth * 0.4).toFixed(3)})`;
-      context.beginPath();
-      context.arc(ax, ay, a.r, 0, Math.PI * 2);
-      context.fill();
+      if (burst) {
+        const dx = px - burst.x;
+        const dy = py - burst.y;
+        const d = Math.max(6, Math.hypot(dx, dy));
+        const f = Math.max(0, 1 - d / (width * 0.7)) * (14 + Math.random() * 10);
+        p.vx += (dx / d) * f;
+        p.vy += (dy / d) * f;
+      }
+
+      p.vx *= 0.86;
+      p.vy *= 0.86;
+      p.x += p.vx / width;
+      p.y += p.vy / height;
+
+      ctx.fillStyle = `${p.c} ${p.a})`;
+      ctx.beginPath();
+      ctx.arc(p.x * width, p.y * height, p.r, 0, Math.PI * 2);
+      ctx.fill();
     }
 
     frame = requestAnimationFrame(step);
   };
 
   const play = () => {
-    if (!frame && visible && !document.hidden && !prefersReducedMotion.matches) {
+    if (!frame && visible && !document.hidden) {
       frame = requestAnimationFrame(step);
     }
   };
@@ -357,23 +648,28 @@ const startHeroField = (prefersReducedMotion) => {
 
   resize();
 
-  if ("ResizeObserver" in window) {
-    new ResizeObserver(resize).observe(canvas);
+  if (document.fonts?.ready) {
+    document.fonts.ready.then(() => {
+      build();
+      play();
+    });
   } else {
-    window.addEventListener("resize", resize, { passive: true });
+    build();
   }
 
-  if ("IntersectionObserver" in window) {
-    new IntersectionObserver((entries) => {
-      visible = entries[0]?.isIntersecting ?? true;
+  build();
 
-      if (visible) {
-        play();
-      } else {
-        pause();
-      }
-    }).observe(canvas);
-  }
+  new ResizeObserver(resize).observe(canvas);
+
+  new IntersectionObserver((entries) => {
+    visible = entries[0]?.isIntersecting ?? true;
+
+    if (visible) {
+      play();
+    } else {
+      pause();
+    }
+  }).observe(canvas);
 
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) {
@@ -383,23 +679,28 @@ const startHeroField = (prefersReducedMotion) => {
     }
   });
 
-  prefersReducedMotion.addEventListener?.("change", () => {
-    if (prefersReducedMotion.matches) {
-      pause();
-      context.clearRect(0, 0, width, height);
-    } else {
-      play();
+  setInterval(() => {
+    if (!visible || document.hidden) {
+      return;
     }
-  });
 
-  if (pointerFine) {
-    window.addEventListener("pointermove", (event) => {
-      pointer = {
-        x: event.clientX / window.innerWidth,
-        y: event.clientY / window.innerHeight
-      };
-    }, { passive: true });
-  }
+    shapeIndex = (shapeIndex + 1) % shapes.length;
+    assign();
+  }, 5000);
+
+  field.addEventListener("pointermove", (event) => {
+    const rect = field.getBoundingClientRect();
+    fieldPointer = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+  }, { passive: true });
+
+  field.addEventListener("pointerleave", () => {
+    fieldPointer = null;
+  }, { passive: true });
+
+  field.addEventListener("click", (event) => {
+    const rect = field.getBoundingClientRect();
+    burstAt = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+  });
 
   play();
 };

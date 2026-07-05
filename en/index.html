@@ -3,9 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="light dark">
-  <meta name="theme-color" content="#f8f9fb" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0d0f16" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0b0d14">
   <title>ma0 tools | Small OSS tools for work automation</title>
   <meta name="description" content="ma0 tools is a small OSS project building lightweight tools for work automation and AI-ready context.">
   <link rel="canonical" href="https://ma0.dev/en/">
@@ -13,134 +12,162 @@
   <link rel="alternate" hreflang="en" href="https://ma0.dev/en/">
   <link rel="alternate" hreflang="x-default" href="https://ma0.dev/">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
   <script type="speculationrules">
     {"prefetch":[{"source":"list","urls":["/","/links/","/en/","/en/links/"],"eagerness":"moderate"}]}
   </script>
 </head>
 <body>
-  <header class="site-header">
-    <a class="site-logo" href="/en/">ma0 tools</a>
-    <nav aria-label="Main navigation">
-      <ul class="nav-list">
-        <li><a href="#links">Links</a></li>
-        <li><a href="#projects">Projects</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="#contact">Contact</a></li>
-        <li><a href="/">JA</a></li>
-      </ul>
-    </nav>
-  </header>
+  <canvas class="aurora-canvas" aria-hidden="true"></canvas>
 
-  <main>
-    <section class="hero">
-      <canvas class="hero-field" aria-hidden="true"></canvas>
-      <div class="hero-content">
-        <p class="eyebrow">Personal OSS / developer tools</p>
-        <h1>ma0 tools</h1>
-        <p class="hero-copy">Small OSS tools for work automation and AI-ready context.</p>
-        <p>I am a solo developer building lightweight tools for spreadsheets, Backlog, GAS, and other repetitive work that should stay simple.</p>
-        <p class="tagline">Tiny tools for people who want fewer repetitive tasks.</p>
-        <div class="hero-actions" aria-label="Primary links">
-          <a class="button primary-button" href="#projects">View works</a>
-          <a class="button secondary-button" href="https://github.com/ma0dev0" target="_blank" rel="noopener noreferrer">GitHub</a>
+  <div class="page">
+    <header class="site-header">
+      <a class="site-logo" href="/en/">
+        <span class="logo-dot" aria-hidden="true"></span>
+        ma0 tools
+      </a>
+      <nav aria-label="Main navigation">
+        <ul class="nav-list">
+          <li><a href="#projects">Projects</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#links">Links</a></li>
+          <li><a class="nav-cta" href="#contact">Contact</a></li>
+          <li><a href="/">JA</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">
+            <span class="eyebrow-dot" aria-hidden="true"></span>
+            Personal OSS / developer tools
+          </p>
+          <h1>ma0 tools</h1>
+          <p class="hero-copy">Small OSS tools for work automation and AI-ready context.</p>
+          <p>I am a solo developer building lightweight tools for spreadsheets, Backlog, GAS, and other repetitive work that should stay simple.</p>
+          <p class="tagline">Tiny tools for people who want fewer repetitive tasks.</p>
+          <div class="hero-actions" aria-label="Primary links">
+            <a class="button primary-button" href="#projects">View works<span class="button-arrow" aria-hidden="true">↓</span></a>
+            <a class="button secondary-button" href="https://github.com/ma0dev0" target="_blank" rel="noopener noreferrer">GitHub<span class="button-arrow" aria-hidden="true">↗</span></a>
+          </div>
         </div>
-      </div>
-      <figure class="hero-visual">
-        <img src="/assets/ma0-tools-hero.webp" alt="Abstract visual representing small developer tools by ma0 tools" width="1400" height="788" fetchpriority="high">
-      </figure>
-    </section>
 
-    <section id="links" class="section">
-      <div class="section-head">
-        <h2>Links</h2>
-      </div>
-      <div class="card-grid links-grid">
-        <a class="card link-card" href="https://github.com/ma0dev0" target="_blank" rel="noopener noreferrer">
-          <span class="card-label">GitHub</span>
-          <span class="card-text">OSS repositories and code</span>
-        </a>
-        <a class="card link-card" href="https://x.com/ma0dev" target="_blank" rel="noopener noreferrer">
-          <span class="card-label">X</span>
-          <span class="card-text">Updates and notes</span>
-        </a>
-        <a class="card link-card" href="https://note.com/ma0dev" target="_blank" rel="noopener noreferrer">
-          <span class="card-label">note</span>
-          <span class="card-text">Articles and background</span>
-        </a>
-        <a class="card link-card" href="https://ma0dev.booth.pm/" target="_blank" rel="noopener noreferrer">
-          <span class="card-label">BOOTH</span>
-          <span class="card-text">Downloads, planned</span>
-        </a>
-        <a class="card link-card" href="/en/links/">
-          <span class="card-label">Links</span>
-          <span class="card-text">Simple link collection</span>
-        </a>
-        <a class="card link-card" href="#contact">
-          <span class="card-label">Contact</span>
-          <span class="card-text">Email is obfuscated to reduce spam.</span>
-        </a>
-      </div>
-    </section>
+        <div class="hero-visual">
+          <div class="hero-ring hero-ring--outer" aria-hidden="true"></div>
+          <div class="hero-ring hero-ring--inner" aria-hidden="true"></div>
+          <canvas class="particle-canvas" aria-label="Interactive particles drifting between the ma0 logo and a cat paw"></canvas>
+          <p class="hero-visual-fallback" aria-hidden="true">ma0</p>
+          <p class="hero-visual-caption" aria-hidden="true">hover to scatter / click to burst</p>
+        </div>
+      </section>
 
-    <section id="projects" class="section">
-      <div class="section-head">
-        <h2>Projects</h2>
-        <p>Two works I currently share.</p>
-      </div>
-      <div class="card-grid">
-        <article class="card project-card">
-          <figure class="project-image">
-            <img src="/assets/desktop-usage-meter.webp" alt="Visual concept for Desktop Usage Meter" width="900" height="600" loading="lazy" decoding="async">
-          </figure>
-          <div class="card-top">
-            <h3>Desktop Usage Meter</h3>
-            <span class="status">Live</span>
+      <section id="projects" class="section">
+        <div class="section-head">
+          <span class="section-index">01</span>
+          <div>
+            <h2>Projects</h2>
+            <p>Two works I currently share.</p>
           </div>
-          <p class="project-meta">Desktop app / Electron</p>
-          <p>A small desktop meter that shows Claude and Codex usage in a simple HUD.</p>
-          <p class="project-actions"><a class="project-link" href="https://github.com/ma0dev0/desktop-usage-meter" target="_blank" rel="noopener noreferrer">View on GitHub</a></p>
-        </article>
-        <article class="card project-card">
-          <figure class="project-image">
-            <img src="/assets/quiet-links.webp" alt="Visual concept for Quiet Links" width="900" height="600" loading="lazy" decoding="async">
-          </figure>
-          <div class="card-top">
-            <h3>Quiet Links</h3>
-            <span class="status">Live</span>
+        </div>
+        <div class="card-grid">
+          <article class="card project-card">
+            <figure class="project-image">
+              <img src="/assets/desktop-usage-meter.webp" alt="Visual concept for Desktop Usage Meter" width="900" height="600" loading="lazy" decoding="async">
+            </figure>
+            <div class="card-top">
+              <h3>Desktop Usage Meter</h3>
+              <span class="status">Live</span>
+            </div>
+            <p class="project-meta">Desktop app / Electron</p>
+            <p>A small desktop meter that shows Claude and Codex usage in a simple HUD.</p>
+            <p class="project-actions"><a class="project-link" href="https://github.com/ma0dev0/desktop-usage-meter" target="_blank" rel="noopener noreferrer">View on GitHub<span class="button-arrow" aria-hidden="true">↗</span></a></p>
+          </article>
+          <article class="card project-card">
+            <figure class="project-image">
+              <img src="/assets/quiet-links.webp" alt="Visual concept for Quiet Links" width="900" height="600" loading="lazy" decoding="async">
+            </figure>
+            <div class="card-top">
+              <h3>Quiet Links</h3>
+              <span class="status">Live</span>
+            </div>
+            <p class="project-meta">Static site / Link dashboard</p>
+            <p>A minimal dark-mode personal link dashboard.</p>
+            <p class="project-actions"><a class="project-link" href="https://github.com/ma0dev0/quiet-links" target="_blank" rel="noopener noreferrer">View on GitHub<span class="button-arrow" aria-hidden="true">↗</span></a></p>
+          </article>
+        </div>
+      </section>
+
+      <section id="about" class="section">
+        <div class="section-head">
+          <span class="section-index">02</span>
+          <div>
+            <h2>About</h2>
           </div>
-          <p class="project-meta">Static site / Link dashboard</p>
-          <p>A minimal dark-mode personal link dashboard.</p>
-          <p class="project-actions"><a class="project-link" href="https://github.com/ma0dev0/quiet-links" target="_blank" rel="noopener noreferrer">View on GitHub</a></p>
-        </article>
-      </div>
-    </section>
+        </div>
+        <p class="about-lead">ma0 tools is a small OSS project for work-automation tools, developer tooling, and <span class="highlight">context-formatting tools for AI</span>.</p>
+        <p class="about-sub">I keep the stack minimal so the site stays fast, readable, and hard to break.</p>
+      </section>
 
-    <section id="about" class="section">
-      <div class="section-head">
-        <h2>About</h2>
-      </div>
-      <div class="card">
-        <p>ma0 tools is a small OSS project focused on utility tools for work automation, developer workflows, and AI-ready context formatting.</p>
-        <p>I keep the stack minimal so the site stays fast, readable, and hard to break.</p>
-      </div>
-    </section>
+      <section id="links" class="section">
+        <div class="section-head">
+          <span class="section-index">03</span>
+          <div>
+            <h2>Links</h2>
+          </div>
+        </div>
+        <div class="card-grid links-grid">
+          <a class="card link-card" href="https://github.com/ma0dev0" target="_blank" rel="noopener noreferrer">
+            <span class="card-label-row"><span class="card-label">GitHub</span><span class="button-arrow" aria-hidden="true">↗</span></span>
+            <span class="card-text">OSS repositories and code</span>
+          </a>
+          <a class="card link-card" href="https://x.com/ma0dev" target="_blank" rel="noopener noreferrer">
+            <span class="card-label-row"><span class="card-label">X</span><span class="button-arrow" aria-hidden="true">↗</span></span>
+            <span class="card-text">Updates and notes</span>
+          </a>
+          <a class="card link-card" href="https://note.com/ma0dev" target="_blank" rel="noopener noreferrer">
+            <span class="card-label-row"><span class="card-label">note</span><span class="button-arrow" aria-hidden="true">↗</span></span>
+            <span class="card-text">Articles and background</span>
+          </a>
+          <a class="card link-card" href="https://ma0dev.booth.pm/" target="_blank" rel="noopener noreferrer">
+            <span class="card-label-row"><span class="card-label">BOOTH</span><span class="button-arrow" aria-hidden="true">↗</span></span>
+            <span class="card-text">Downloads, planned</span>
+          </a>
+          <a class="card link-card" href="/en/links/">
+            <span class="card-label-row"><span class="card-label">Links</span></span>
+            <span class="card-text">Simple link collection</span>
+          </a>
+          <a class="card link-card" href="#contact">
+            <span class="card-label-row"><span class="card-label">Contact</span></span>
+            <span class="card-text">Email is obfuscated to reduce spam.</span>
+          </a>
+        </div>
+      </section>
 
-    <section id="contact" class="section">
-      <div class="section-head">
-        <h2>Contact</h2>
-      </div>
-      <div class="card contact-card">
-        <p>Reach out through GitHub, X, or note first. I keep the email address obfuscated to reduce spam.</p>
-        <p class="contact-address">contact [at] ma0.dev</p>
-        <p class="contact-note">I keep the public contact path simple and low-noise.</p>
-      </div>
-    </section>
-  </main>
+      <section id="contact" class="section">
+        <div class="section-head">
+          <span class="section-index">04</span>
+          <div>
+            <h2>Contact</h2>
+          </div>
+        </div>
+        <div class="card contact-card">
+          <p>Reach out through GitHub, X, or note first. I keep the email address obfuscated to reduce spam.</p>
+          <p class="contact-address" data-user="contact" data-domain="ma0.dev">contact [at] ma0.dev</p>
+          <p class="contact-note">I keep the public contact path simple and low-noise.</p>
+        </div>
+      </section>
+    </main>
 
-  <footer class="site-footer">
-    <p>ma0.dev / lightweight OSS tools hub</p>
-  </footer>
+    <footer class="site-footer">
+      <p>ma0.dev / lightweight OSS tools hub</p>
+      <p class="footer-tag">no build / no framework / latest CSS</p>
+    </footer>
+  </div>
   <script type="module" src="/main.js"></script>
 </body>
 </html>
