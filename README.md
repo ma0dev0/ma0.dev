@@ -4,9 +4,17 @@ ma0 tools の公式サイト兼リンク集です。
 
 ## Files
 
-- `index.html`: トップページ
-- `links/index.html`: リンク集ページ
+- `index.html`: トップページ(`en/index.html` は英語版)
+- `links/index.html`: リンク集ページ(`en/links/index.html` は英語版)
 - `style.css`: 共通スタイル
+- `main.js`: プログレッシブエンハンスメント用のバニラJS
 - `favicon.svg`: favicon
 
-HTML/CSSのみで動きます。JavaScript、外部ライブラリ、Webフォントは使っていません。
+ビルドなしの静的サイトです。外部ライブラリ・CDN・Webフォントは使っていません。
+
+## Design notes
+
+- ダーク基調(OSのライト設定にも `light-dark()` で追従)
+- カラートークンは OKLCH、ボーダーは `color-mix()` ベース
+- スクロール連動アニメーション(`animation-timeline`)、View Transitions、Anchor Positioning、`@starting-style`、scroll-state コンテナクエリなどの最新CSSはすべてプログレッシブエンハンスメントとして実装(非対応ブラウザでは静的に劣化)
+- `main.js` の演出(パーティクル、3Dチルト、マグネティックボタン、スポットライト)は `prefers-reduced-motion` / データセーバー時には起動しません
