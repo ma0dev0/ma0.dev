@@ -355,6 +355,14 @@ small {
   overflow-wrap: anywhere;
 }
 
+/* Japanese setting: looser body leading (~1.8) and proportional kana/kanji
+   spacing (palt) for a more finished mixed JA/EN feel. Headings keep their own
+   tight leading; this only relaxes flowing body text on the JA document. */
+:lang(ja) {
+  font-feature-settings: "palt" 1;
+  line-height: 1.8;
+}
+
 /* ============================================================
    Header — quiet at rest, glass card once stuck
    ============================================================ */
@@ -988,9 +996,64 @@ small {
 }
 
 .contact-address {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 1.18rem;
   font-weight: 800;
+}
+
+.contact-email {
+  color: var(--text);
+  text-decoration-color: color-mix(in oklch, var(--accent) 55%, transparent);
+  text-underline-offset: 0.22em;
+  transition: color 180ms ease, text-decoration-color 180ms ease;
+}
+
+.contact-email:visited {
+  color: var(--text);
+}
+
+.contact-email:hover,
+.contact-email:focus {
+  color: var(--accent);
+  text-decoration-thickness: 2px;
+  text-decoration-color: var(--accent);
+}
+
+.contact-copy {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 4px 12px;
+  background: var(--surface-strong);
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease, scale 120ms ease;
+}
+
+.contact-copy:hover,
+.contact-copy:focus-visible {
+  border-color: var(--line-hover);
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+.contact-copy:active {
+  scale: 0.96;
+}
+
+.contact-copy.is-copied {
+  border-color: color-mix(in oklch, var(--live) 55%, transparent);
+  color: var(--live);
 }
 
 .contact-note {

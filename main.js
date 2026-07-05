@@ -2,6 +2,10 @@ const startEnhancements = () => {
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const saveData = navigator.connection?.saveData === true;
 
+  // Functional, not decorative — enhance before the motion gate so every visitor
+  // gets a real mailto link and copy button.
+  enhanceContact();
+
   if (prefersReducedMotion.matches || saveData) {
     return;
   }
@@ -157,6 +161,59 @@ const startEnhancements = () => {
   startTilt();
   startMagneticButtons();
   startHeroField(prefersReducedMotion);
+};
+
+// Contact: assemble the address from parts (kept out of the raw HTML for spam
+// hygiene), swap the obfuscated text for a real mailto link, and add a copy button.
+const enhanceContact = () => {
+  const el = document.querySelector(".contact-address[data-user][data-domain]");
+
+  if (!el) {
+    return;
+  }
+
+  const email = `${el.dataset.user}@${el.dataset.domain}`;
+  const ja = document.documentElement.lang.startsWith("ja");
+  const labels = ja
+    ? { copy: "コピー", copied: "コピーしました", aria: "メールアドレスをコピー" }
+    : { copy: "Copy", copied: "Copied", aria: "Copy email address" };
+
+  const link = document.createElement("a");
+  link.className = "contact-email";
+  link.href = `mailto:${email}`;
+  link.textContent = email;
+
+  el.textContent = "";
+  el.append(link);
+
+  if (!navigator.clipboard) {
+    return;
+  }
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "contact-copy";
+  button.textContent = labels.copy;
+  button.setAttribute("aria-label", labels.aria);
+
+  let resetTimer = null;
+
+  button.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(email);
+      button.textContent = labels.copied;
+      button.classList.add("is-copied");
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(() => {
+        button.textContent = labels.copy;
+        button.classList.remove("is-copied");
+      }, 2000);
+    } catch {
+      /* clipboard blocked — the mailto link is still available */
+    }
+  });
+
+  el.append(button);
 };
 
 // 3D tilt on the hero visual, driven by pointer position.
