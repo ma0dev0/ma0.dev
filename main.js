@@ -217,6 +217,7 @@ const startEnhancements = () => {
   startMagneticButtons();
   startAuroraField(prefersReducedMotion);
   startParticleField();
+  startStoryScroller();
 };
 
 // 3D tilt on project cards, driven by pointer position. Runs alongside the
@@ -308,7 +309,7 @@ const startAuroraField = (prefersReducedMotion) => {
   const vertexSource = "attribute vec2 a; void main(){ gl_Position = vec4(a, 0.0, 1.0); }";
   const fragmentSource = [
     "precision highp float;",
-    "uniform vec2 u_res; uniform float u_time; uniform vec2 u_ptr; uniform float u_int;",
+    "uniform vec2 u_res; uniform float u_time; uniform vec2 u_ptr; uniform float u_int; uniform float u_scroll;",
     "float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }",
     "float noise(vec2 p){ vec2 i = floor(p); vec2 f = fract(p); vec2 u = f*f*(3.0-2.0*f);",
     "  return mix(mix(hash(i), hash(i+vec2(1.0,0.0)), u.x), mix(hash(i+vec2(0.0,1.0)), hash(i+vec2(1.0,1.0)), u.x), u.y); }",
@@ -316,6 +317,7 @@ const startAuroraField = (prefersReducedMotion) => {
     "void main(){",
     "  vec2 uv = gl_FragCoord.xy / u_res;",
     "  vec2 p = uv * vec2(u_res.x/u_res.y, 1.0);",
+    "  p.y += u_scroll * 0.9;",
     "  float t = u_time * 0.045;",
     "  vec2 drift = (u_ptr - 0.5) * 0.35;",
     "  float n1 = fbm(p*1.35 + vec2(t*0.7, -t*0.45) + drift);",
@@ -324,9 +326,13 @@ const startAuroraField = (prefersReducedMotion) => {
     "  vec3 cyan = vec3(0.30, 0.85, 0.95);",
     "  vec3 magenta = vec3(0.88, 0.42, 0.90);",
     "  vec3 mint = vec3(0.40, 0.92, 0.65);",
-    "  vec3 col = cyan * smoothstep(0.42, 0.95, n1)",
-    "           + magenta * smoothstep(0.50, 1.0, n2) * 0.75",
-    "           + mint * smoothstep(0.55, 1.0, n3 * n1 * 1.8) * 0.55;",
+    "  vec3 colA = cyan * smoothstep(0.42, 0.95, n1)",
+    "            + magenta * smoothstep(0.50, 1.0, n2) * 0.75",
+    "            + mint * smoothstep(0.55, 1.0, n3 * n1 * 1.8) * 0.55;",
+    "  vec3 colB = magenta * smoothstep(0.42, 0.95, n1)",
+    "            + mint * smoothstep(0.50, 1.0, n2) * 0.75",
+    "            + cyan * smoothstep(0.55, 1.0, n3 * n1 * 1.8) * 0.55;",
+    "  vec3 col = mix(colA, colB, u_scroll);",
     "  float vert = smoothstep(0.05, 1.05, uv.y);",
     "  gl_FragColor = vec4(col * u_int * vert * 0.42, 1.0) * (u_int * vert);",
     "}"
@@ -361,11 +367,13 @@ const startAuroraField = (prefersReducedMotion) => {
   const uTime = gl.getUniformLocation(program, "u_time");
   const uPtr = gl.getUniformLocation(program, "u_ptr");
   const uInt = gl.getUniformLocation(program, "u_int");
+  const uScroll = gl.getUniformLocation(program, "u_scroll");
 
   const intensity = 0.65;
   let frame = null;
   let pointer = { x: 0.5, y: 0.5 };
   let smooth = { x: 0.5, y: 0.5 };
+  let scrollSmooth = 0;
   const start = performance.now();
 
   const resize = () => {
@@ -390,10 +398,17 @@ const startAuroraField = (prefersReducedMotion) => {
     smooth.x += (pointer.x - smooth.x) * 0.03;
     smooth.y += (pointer.y - smooth.y) * 0.03;
 
+    // Scroll progress eases the palette from cyan- to magenta-dominant and
+    // drifts the noise field, so the aurora itself responds to scrolling.
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const scrollTarget = maxScroll > 0 ? Math.min(1, Math.max(0, window.scrollY / maxScroll)) : 0;
+    scrollSmooth += (scrollTarget - scrollSmooth) * 0.05;
+
     gl.uniform2f(uRes, canvas.width, canvas.height);
     gl.uniform1f(uTime, (performance.now() - start) / 1000);
     gl.uniform2f(uPtr, smooth.x, 1 - smooth.y);
     gl.uniform1f(uInt, intensity);
+    gl.uniform1f(uScroll, scrollSmooth);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
 
     frame = requestAnimationFrame(step);
@@ -435,6 +450,64 @@ const startAuroraField = (prefersReducedMotion) => {
   play();
 };
 
+// Shared shape samplers: rasterise a glyph or the paw into an offscreen
+// canvas and return shuffled points in 0..1 space. Used by both the hero
+// particle field and the story scroller.
+const sampleShapePoints = (draw) => {
+  const s = 480;
+  const off = document.createElement("canvas");
+  off.width = s;
+  off.height = s;
+  const offCtx = off.getContext("2d");
+  offCtx.fillStyle = "#fff";
+  draw(offCtx, s);
+
+  const data = offCtx.getImageData(0, 0, s, s).data;
+  const points = [];
+  const step = 3;
+
+  for (let y = 0; y < s; y += step) {
+    for (let x = 0; x < s; x += step) {
+      if (data[(y * s + x) * 4 + 3] > 128) {
+        points.push({ x: x / s, y: y / s });
+      }
+    }
+  }
+
+  for (let i = points.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = points[i];
+    points[i] = points[j];
+    points[j] = t;
+  }
+
+  return points;
+};
+
+const drawTextShape = (text, size) => (c, s) => {
+  c.font = `700 ${Math.floor(s * size)}px "Instrument Sans", system-ui, sans-serif`;
+  c.textAlign = "center";
+  c.textBaseline = "middle";
+  c.fillText(text, s / 2, s * 0.52);
+};
+
+const drawPawShape = (c, s) => {
+  const cx = s / 2;
+  const cy = s * 0.6;
+
+  const ellipse = (x, y, rx, ry) => {
+    c.beginPath();
+    c.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+    c.fill();
+  };
+
+  ellipse(cx, cy, s * 0.155, s * 0.13);
+  ellipse(cx - s * 0.175, cy - s * 0.135, s * 0.055, s * 0.072);
+  ellipse(cx - s * 0.062, cy - s * 0.205, s * 0.056, s * 0.075);
+  ellipse(cx + s * 0.062, cy - s * 0.205, s * 0.056, s * 0.075);
+  ellipse(cx + s * 0.175, cy - s * 0.135, s * 0.055, s * 0.072);
+};
+
 // Particle field: canvas 2D dots that morph between "ma0", a paw shape, and
 // "OSS", drawn by sampling an offscreen canvas. Reacts to pointer proximity
 // and click bursts inside the hero visual.
@@ -467,66 +540,11 @@ const startParticleField = () => {
     return "rgba(120, 235, 175,";
   };
 
-  const samplePoints = (draw) => {
-    const s = 480;
-    const off = document.createElement("canvas");
-    off.width = s;
-    off.height = s;
-    const offCtx = off.getContext("2d");
-    offCtx.fillStyle = "#fff";
-    draw(offCtx, s);
-
-    const data = offCtx.getImageData(0, 0, s, s).data;
-    const points = [];
-    const step = 3;
-
-    for (let y = 0; y < s; y += step) {
-      for (let x = 0; x < s; x += step) {
-        if (data[(y * s + x) * 4 + 3] > 128) {
-          points.push({ x: x / s, y: y / s });
-        }
-      }
-    }
-
-    for (let i = points.length - 1; i > 0; i -= 1) {
-      const j = Math.floor(Math.random() * (i + 1));
-      const t = points[i];
-      points[i] = points[j];
-      points[j] = t;
-    }
-
-    return points;
-  };
-
   const buildShapes = () => {
-    const drawText = (text, size) => (c, s) => {
-      c.font = `700 ${Math.floor(s * size)}px "Instrument Sans", system-ui, sans-serif`;
-      c.textAlign = "center";
-      c.textBaseline = "middle";
-      c.fillText(text, s / 2, s * 0.52);
-    };
-
-    const drawPaw = (c, s) => {
-      const cx = s / 2;
-      const cy = s * 0.6;
-
-      const ellipse = (x, y, rx, ry) => {
-        c.beginPath();
-        c.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
-        c.fill();
-      };
-
-      ellipse(cx, cy, s * 0.155, s * 0.13);
-      ellipse(cx - s * 0.175, cy - s * 0.135, s * 0.055, s * 0.072);
-      ellipse(cx - s * 0.062, cy - s * 0.205, s * 0.056, s * 0.075);
-      ellipse(cx + s * 0.062, cy - s * 0.205, s * 0.056, s * 0.075);
-      ellipse(cx + s * 0.175, cy - s * 0.135, s * 0.055, s * 0.072);
-    };
-
     shapes = [
-      samplePoints(drawText("ma0", 0.36)),
-      samplePoints(drawPaw),
-      samplePoints(drawText("OSS", 0.34))
+      sampleShapePoints(drawTextShape("ma0", 0.36)),
+      sampleShapePoints(drawPawShape),
+      sampleShapePoints(drawTextShape("OSS", 0.34))
     ];
   };
 
@@ -700,6 +718,278 @@ const startParticleField = () => {
   field.addEventListener("click", (event) => {
     const rect = field.getBoundingClientRect();
     burstAt = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+  });
+
+  play();
+};
+
+// Story: a scroll-scrubbed particle film inside a sticky full-viewport stage.
+// Every frame is a pure function of scroll progress — scrolling forward plays
+// the movie (scatter → "ma0" → paw → "OSS" → dissolve), scrolling back
+// rewinds it frame-perfect. Captions and the HUD are driven off the same
+// progress value.
+const startStoryScroller = () => {
+  const section = document.querySelector(".story");
+  const track = section?.querySelector(".story-track");
+  const canvas = section?.querySelector(".story-canvas");
+  const ctx = canvas?.getContext("2d");
+
+  if (!section || !track || !canvas || !ctx) {
+    return;
+  }
+
+  const captions = Array.from(section.querySelectorAll(".story-caption"));
+  const sceneNo = section.querySelector(".story-scene-no");
+  const progressFill = section.querySelector(".story-progress-fill");
+
+  // Timeline keyframes. shape ids: 0 scattered cloud, 1 "ma0", 2 paw,
+  // 3 "OSS", 4 dissolve. Equal t on consecutive keys with the same shape
+  // means "hold"; differing shapes morph with an eased swirl between them.
+  const KEYS = [
+    { t: 0, shape: 0 },
+    { t: 0.1, shape: 0 },
+    { t: 0.3, shape: 1 },
+    { t: 0.42, shape: 1 },
+    { t: 0.58, shape: 2 },
+    { t: 0.7, shape: 2 },
+    { t: 0.84, shape: 3 },
+    { t: 0.93, shape: 3 },
+    { t: 1.0001, shape: 4 }
+  ];
+
+  const CAPTION_WINDOWS = [
+    [0.015, 0.14],
+    [0.25, 0.44],
+    [0.53, 0.72],
+    [0.79, 0.945]
+  ];
+
+  // Weighted per-scene palettes (scatter / ma0 / paw / OSS)
+  const PALETTES = [
+    [[150, 175, 205], [150, 175, 205], [96, 218, 240], [235, 240, 252]],
+    [[96, 218, 240], [96, 218, 240], [235, 240, 252], [120, 235, 175]],
+    [[226, 120, 224], [235, 240, 252], [226, 120, 224], [96, 218, 240]],
+    [[120, 235, 175], [96, 218, 240], [120, 235, 175], [235, 240, 252]]
+  ];
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  let width = 0;
+  let height = 0;
+  let frame = null;
+  let inView = true;
+  let built = false;
+  let particles = [];
+
+  const clamp01 = (v) => Math.min(1, Math.max(0, v));
+  const smoother = (t) => t * t * t * (t * (t * 6 - 15) + 10);
+
+  const build = () => {
+    const shapes = [
+      sampleShapePoints(drawTextShape("ma0", 0.34)),
+      sampleShapePoints(drawPawShape),
+      sampleShapePoints(drawTextShape("OSS", 0.32))
+    ];
+
+    const count = Math.round(window.innerWidth < 560 ? 650 : 1500);
+
+    particles = Array.from({ length: count }, (_, i) => {
+      const swirlAngle = Math.random() * Math.PI * 2;
+      const exitAngle = Math.random() * Math.PI * 2;
+
+      return {
+        cloudAngle: Math.random() * Math.PI * 2,
+        cloudRadius: Math.sqrt(Math.random()),
+        swirlX: Math.cos(swirlAngle),
+        swirlY: Math.sin(swirlAngle),
+        swirlAmp: 0.05 + Math.random() * 0.16,
+        exitX: Math.cos(exitAngle),
+        exitY: Math.sin(exitAngle),
+        wobble: Math.random() * Math.PI * 2,
+        r: 0.7 + Math.random() * 1.5,
+        a: 0.45 + Math.random() * 0.55,
+        colors: PALETTES.map((palette) => palette[Math.floor(Math.random() * palette.length)]),
+        targets: shapes.map((points) => points[i % points.length])
+      };
+    });
+
+    built = true;
+  };
+
+  // Stage-space position of a particle for a given shape id at progress p.
+  const shapePos = (particle, shape, p, out) => {
+    const side = Math.min(width * 0.92, height * 0.74);
+    const cx = width / 2;
+    const cy = height * 0.46;
+
+    if (shape === 0) {
+      const ang = particle.cloudAngle + p * 1.4;
+      out.x = cx + Math.cos(ang) * particle.cloudRadius * width * 0.46;
+      out.y = cy + Math.sin(ang) * particle.cloudRadius * height * 0.4;
+      return;
+    }
+
+    if (shape === 4) {
+      const push = Math.max(width, height) * 0.75;
+      const base = particle.targets[2];
+      out.x = cx + (base.x - 0.5) * side + particle.exitX * push;
+      out.y = cy + (base.y - 0.5) * side + particle.exitY * push;
+      return;
+    }
+
+    const pt = particle.targets[shape - 1];
+    out.x = cx + (pt.x - 0.5) * side;
+    out.y = cy + (pt.y - 0.5) * side;
+  };
+
+  const posA = { x: 0, y: 0 };
+  const posB = { x: 0, y: 0 };
+
+  const render = (p, now) => {
+    let k = 0;
+
+    while (k < KEYS.length - 2 && KEYS[k + 1].t <= p) {
+      k += 1;
+    }
+
+    const from = KEYS[k];
+    const to = KEYS[k + 1];
+    const span = to.t - from.t;
+    const local = span > 0 ? clamp01((p - from.t) / span) : 0;
+    const morphing = from.shape !== to.shape;
+    const e = morphing ? smoother(local) : 0;
+    const swirl = morphing ? Math.sin(Math.PI * e) : 0;
+    const alphaMul = to.shape === 4 ? 1 - e : 1;
+    const sizeRef = Math.min(width, height);
+
+    ctx.clearRect(0, 0, width, height);
+    ctx.globalCompositeOperation = "lighter";
+
+    for (const particle of particles) {
+      shapePos(particle, from.shape, p, posA);
+      let x = posA.x;
+      let y = posA.y;
+      let [cr, cg, cb] = particle.colors[Math.min(from.shape, 3)];
+
+      if (morphing) {
+        shapePos(particle, to.shape, p, posB);
+        x += (posB.x - x) * e + particle.swirlX * particle.swirlAmp * sizeRef * swirl;
+        y += (posB.y - y) * e + particle.swirlY * particle.swirlAmp * sizeRef * swirl;
+
+        const target = particle.colors[Math.min(to.shape, 3)];
+        cr += (target[0] - cr) * e;
+        cg += (target[1] - cg) * e;
+        cb += (target[2] - cb) * e;
+      }
+
+      // Idle shimmer so held frames still feel alive between scrolls
+      x += Math.sin(now * 0.0011 + particle.wobble) * 1.6;
+      y += Math.cos(now * 0.0009 + particle.wobble * 1.7) * 1.6;
+
+      ctx.fillStyle = `rgba(${cr | 0}, ${cg | 0}, ${cb | 0}, ${(particle.a * alphaMul).toFixed(3)})`;
+      ctx.beginPath();
+      ctx.arc(x, y, particle.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  };
+
+  const updateOverlay = (p) => {
+    captions.forEach((caption, i) => {
+      const window_ = CAPTION_WINDOWS[i];
+
+      if (!window_) {
+        return;
+      }
+
+      const [start, end] = window_;
+      const fade = 0.045;
+      const alpha = clamp01((p - start) / fade) * clamp01((end - p) / fade);
+      const drift = (p - (start + end) / 2) / (end - start);
+
+      caption.style.opacity = alpha.toFixed(3);
+      caption.style.translate = `0 ${(-drift * 46).toFixed(1)}px`;
+    });
+
+    if (progressFill) {
+      progressFill.style.scale = `${p.toFixed(4)} 1`;
+    }
+
+    if (sceneNo) {
+      const scene = p < 0.2 ? 1 : p < 0.5 ? 2 : p < 0.77 ? 3 : 4;
+      const label = `0${scene}`;
+
+      if (sceneNo.textContent !== label) {
+        sceneNo.textContent = label;
+      }
+    }
+  };
+
+  const step = () => {
+    frame = null;
+
+    if (!inView || document.hidden) {
+      return;
+    }
+
+    const rect = track.getBoundingClientRect();
+    const range = rect.height - window.innerHeight;
+    const p = range > 0 ? clamp01(-rect.top / range) : 0;
+
+    if (built) {
+      render(p, performance.now());
+      updateOverlay(p);
+    }
+
+    frame = requestAnimationFrame(step);
+  };
+
+  const play = () => {
+    if (!frame && inView && !document.hidden) {
+      frame = requestAnimationFrame(step);
+    }
+  };
+
+  const pause = () => {
+    if (frame) {
+      cancelAnimationFrame(frame);
+      frame = null;
+    }
+  };
+
+  const resize = () => {
+    const rect = canvas.getBoundingClientRect();
+    width = rect.width;
+    height = rect.height;
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  };
+
+  resize();
+
+  const fontsReady = document.fonts?.ready ?? Promise.resolve();
+  fontsReady.then(() => {
+    build();
+    play();
+  });
+
+  new ResizeObserver(resize).observe(canvas);
+
+  new IntersectionObserver((entries) => {
+    inView = entries[0]?.isIntersecting ?? true;
+
+    if (inView) {
+      play();
+    } else {
+      pause();
+    }
+  }).observe(track);
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      pause();
+    } else {
+      play();
+    }
   });
 
   play();

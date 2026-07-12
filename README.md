@@ -18,3 +18,5 @@ ma0 tools の公式サイト兼リンク集です。
 - カラートークンは OKLCH、ボーダーは `color-mix()` ベース
 - スクロール連動アニメーション(`animation-timeline`)、View Transitions、Anchor Positioning、`@starting-style`、scroll-state コンテナクエリなどの最新CSSはすべてプログレッシブエンハンスメントとして実装(非対応ブラウザでは静的に劣化)
 - `main.js` の演出(パーティクル、3Dチルト、マグネティックボタン、スポットライト)は `prefers-reduced-motion` / データセーバー時には起動しません
+- 「Story」セクションはスクロール量でCanvasパーティクルをスクラブ再生するシネマティック演出(sticky ステージ+決定論的タイムライン。スクロールを戻すと巻き戻る)。JSなし・reduced-motion 時はテキストのみの静的表示に劣化
+- Aurora シェーダーはスクロール位置に連動してパレットがシアン系→マゼンタ系へ遷移し、ヒーローはスクロールで退場(`animation-timeline: view()`)
