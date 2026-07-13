@@ -10,11 +10,11 @@ ma0 tools の公式サイト兼リンク集です。
 - `main.js`: プログレッシブエンハンスメント用のバニラJS
 - `favicon.svg`: favicon
 
-ビルドなしの静的サイトです。外部ライブラリ・CDN・Webフォントは使っていません。
+ビルドなしの静的サイトです。外部ライブラリは使っていません(Webフォントのみ Google Fonts から読み込み)。
 
 ## Design notes
 
-- ダーク基調(OSのライト設定にも `light-dark()` で追従)
+- ダーク専用(`color-scheme: dark`)
 - カラートークンは OKLCH、ボーダーは `color-mix()` ベース
 - スクロール連動アニメーション(`animation-timeline`)、View Transitions、Anchor Positioning、`@starting-style`、scroll-state コンテナクエリなどの最新CSSはすべてプログレッシブエンハンスメントとして実装(非対応ブラウザでは静的に劣化)
 - `main.js` の演出(パーティクル、3Dチルト、マグネティックボタン、スポットライト)は `prefers-reduced-motion` / データセーバー時には起動しません
