@@ -56,8 +56,10 @@ const startEnhancements = () => {
   const saveData = navigator.connection?.saveData === true;
 
   // Functional, not decorative — enhance before the motion gate so every visitor
-  // gets a real mailto link and copy button.
+  // gets a real mailto link and copy button. Same for the command palette:
+  // it's navigation, not motion, so reduced-motion users keep it too.
   enhanceContact();
+  startCommandPalette();
 
   if (prefersReducedMotion.matches || saveData) {
     return;
@@ -218,6 +220,10 @@ const startEnhancements = () => {
   startAuroraField(prefersReducedMotion);
   startParticleField();
   startStoryScroller();
+  startCustomCursor();
+  startScrambleHeadings();
+  startScrollSkew();
+  startFooterHud();
 };
 
 // 3D tilt on project cards, driven by pointer position. Runs alongside the
@@ -993,6 +999,467 @@ const startStoryScroller = () => {
   });
 
   play();
+};
+
+// Command palette (⌘K): quick navigation across pages and external links.
+// Built lazily into a native <dialog> so focus trapping and Esc come for free.
+const startCommandPalette = () => {
+  const ja = document.documentElement.lang.startsWith("ja");
+  const onHome = document.getElementById("projects") !== null;
+  const home = ja ? "/" : "/en/";
+
+  const t = ja
+    ? {
+        title: "コマンドパレット",
+        open: "コマンドパレットを開く",
+        placeholder: "移動先やリンクを検索…",
+        empty: "見つかりませんでした",
+        select: "選択",
+        run: "開く",
+        close: "閉じる",
+        linksPage: "Links ページ",
+        language: "English version",
+        copy: "メールアドレスをコピー",
+        copied: "コピーしました ✓"
+      }
+    : {
+        title: "Command palette",
+        open: "Open command palette",
+        placeholder: "Search pages and links…",
+        empty: "No results",
+        select: "select",
+        run: "open",
+        close: "Close",
+        linksPage: "Links page",
+        language: "日本語版",
+        copy: "Copy email address",
+        copied: "Copied ✓"
+      };
+
+  const anchorHref = (hash) => (onHome ? hash : `${home}${hash}`);
+  const languageHref = ja
+    ? `/en${location.pathname}`.replace(/\/{2,}/g, "/")
+    : location.pathname.replace(/^\/en/, "") || "/";
+
+  const items = [
+    { label: "Top", hint: anchorHref("#top"), href: anchorHref("#top") },
+    { label: "Projects", hint: anchorHref("#projects"), href: anchorHref("#projects") },
+    { label: "About", hint: anchorHref("#about"), href: anchorHref("#about") },
+    { label: "Links", hint: anchorHref("#links"), href: anchorHref("#links") },
+    { label: "Contact", hint: anchorHref("#contact"), href: anchorHref("#contact") },
+    { label: t.linksPage, hint: ja ? "/links/" : "/en/links/", href: ja ? "/links/" : "/en/links/" },
+    { label: t.language, hint: languageHref, href: languageHref },
+    { label: "GitHub", hint: "github.com/ma0dev0", href: "https://github.com/ma0dev0", external: true },
+    { label: "X", hint: "x.com/ma0dev", href: "https://x.com/ma0dev", external: true },
+    { label: "note", hint: "note.com/ma0dev", href: "https://note.com/ma0dev", external: true },
+    { label: "BOOTH", hint: "ma0dev.booth.pm", href: "https://ma0dev.booth.pm/", external: true }
+  ];
+
+  const dialog = document.createElement("dialog");
+  dialog.className = "cmdk";
+  dialog.setAttribute("aria-label", t.title);
+  dialog.innerHTML = [
+    '<div class="cmdk-head">',
+    '<span class="cmdk-glyph" aria-hidden="true">&gt;_</span>',
+    `<input class="cmdk-input" type="text" placeholder="${t.placeholder}" aria-label="${t.placeholder}" autocomplete="off" spellcheck="false">`,
+    `<button type="button" class="cmdk-esc" aria-label="${t.close}"><kbd>esc</kbd></button>`,
+    "</div>",
+    '<ul class="cmdk-list" role="listbox"></ul>',
+    `<p class="cmdk-foot"><span><kbd>↑</kbd><kbd>↓</kbd> ${t.select}</span><span><kbd>↵</kbd> ${t.run}</span></p>`
+  ].join("");
+  document.body.append(dialog);
+
+  const input = dialog.querySelector(".cmdk-input");
+  const list = dialog.querySelector(".cmdk-list");
+
+  let filtered = items;
+  let selected = 0;
+
+  const select = (index) => {
+    selected = index;
+    Array.from(list.children).forEach((child, i) => {
+      child.setAttribute("aria-selected", i === selected ? "true" : "false");
+    });
+    input.setAttribute("aria-activedescendant", `cmdk-item-${selected}`);
+    list.children[selected]?.scrollIntoView({ block: "nearest" });
+  };
+
+  const run = (item) => {
+    if (item.action) {
+      item.action();
+      return;
+    }
+
+    if (item.external) {
+      dialog.close();
+      window.open(item.href, "_blank", "noopener");
+      return;
+    }
+
+    dialog.close();
+
+    if (item.href.startsWith("#")) {
+      const target = document.getElementById(item.href.slice(1));
+
+      if (target) {
+        target.scrollIntoView({ behavior: "smooth", block: "start" });
+
+        if (location.hash !== item.href) {
+          history.pushState(null, "", item.href);
+        }
+
+        return;
+      }
+    }
+
+    location.assign(item.href);
+  };
+
+  const renderList = () => {
+    list.textContent = "";
+
+    if (filtered.length === 0) {
+      const empty = document.createElement("li");
+      empty.className = "cmdk-empty";
+      empty.textContent = t.empty;
+      list.append(empty);
+      input.removeAttribute("aria-activedescendant");
+      return;
+    }
+
+    filtered.forEach((item, i) => {
+      const li = document.createElement("li");
+      li.className = "cmdk-item";
+      li.id = `cmdk-item-${i}`;
+      li.setAttribute("role", "option");
+      li.setAttribute("aria-selected", i === selected ? "true" : "false");
+
+      const label = document.createElement("span");
+      label.className = "cmdk-item-label";
+      label.textContent = item.label;
+
+      const hint = document.createElement("span");
+      hint.className = "cmdk-item-hint";
+      hint.textContent = item.hint;
+
+      li.append(label, hint);
+      li.addEventListener("pointermove", () => {
+        if (selected !== i) {
+          select(i);
+        }
+      }, { passive: true });
+      li.addEventListener("click", () => run(item));
+      list.append(li);
+    });
+
+    input.setAttribute("aria-activedescendant", `cmdk-item-${selected}`);
+  };
+
+  const applyFilter = () => {
+    const query = input.value.trim().toLowerCase();
+    filtered = query
+      ? items.filter((item) => `${item.label} ${item.hint}`.toLowerCase().includes(query))
+      : items;
+    selected = 0;
+    renderList();
+  };
+
+  // Copy-email action only where the obfuscated address exists (home page).
+  const contactEl = document.querySelector(".contact-address[data-user][data-domain]");
+
+  if (contactEl && navigator.clipboard) {
+    items.push({
+      label: t.copy,
+      hint: "clipboard",
+      action: async () => {
+        try {
+          await navigator.clipboard.writeText(`${contactEl.dataset.user}@${contactEl.dataset.domain}`);
+          const current = list.querySelector('[aria-selected="true"] .cmdk-item-label');
+
+          if (current) {
+            current.textContent = t.copied;
+          }
+
+          setTimeout(() => dialog.close(), 700);
+        } catch {
+          dialog.close();
+        }
+      }
+    });
+  }
+
+  const open = () => {
+    if (dialog.open) {
+      return;
+    }
+
+    input.value = "";
+    applyFilter();
+    dialog.showModal();
+    input.focus();
+  };
+
+  // The open attribute is the single source of truth: syncing the html-level
+  // class off it covers every close path (Esc, backdrop click, item actions)
+  // without depending on the close event's timing.
+  new MutationObserver(() => {
+    document.documentElement.classList.toggle("cmdk-open", dialog.open);
+  }).observe(dialog, { attributes: true, attributeFilter: ["open"] });
+
+  // Click on the backdrop (target is the dialog itself) closes the palette.
+  dialog.addEventListener("click", (event) => {
+    if (event.target === dialog) {
+      dialog.close();
+    }
+  });
+
+  dialog.querySelector(".cmdk-esc").addEventListener("click", () => dialog.close());
+
+  input.addEventListener("input", applyFilter);
+
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+
+      if (filtered.length > 0) {
+        const delta = event.key === "ArrowDown" ? 1 : -1;
+        select((selected + delta + filtered.length) % filtered.length);
+      }
+
+      return;
+    }
+
+    if (event.key === "Enter") {
+      event.preventDefault();
+      const item = filtered[selected];
+
+      if (item) {
+        run(item);
+      }
+    }
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if ((event.metaKey || event.ctrlKey) && !event.shiftKey && !event.altKey && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+
+      if (dialog.open) {
+        dialog.close();
+      } else {
+        open();
+      }
+    }
+  });
+
+  const navList = document.querySelector(".nav-list");
+
+  if (navList) {
+    const isMac = /Mac|iP/.test(navigator.userAgentData?.platform ?? navigator.platform);
+    const li = document.createElement("li");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "nav-cmdk";
+    button.textContent = isMac ? "⌘K" : "Ctrl K";
+    button.setAttribute("aria-label", t.open);
+    button.addEventListener("click", open);
+    li.append(button);
+    navList.append(li);
+  }
+};
+
+// Custom cursor: an instant dot plus a trailing ring that swells over
+// interactive elements. Fine pointers only; falls back to the native cursor.
+const startCustomCursor = () => {
+  if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+    return;
+  }
+
+  const dot = document.createElement("div");
+  const ring = document.createElement("div");
+  dot.className = "cursor-dot is-out";
+  ring.className = "cursor-ring is-out";
+  dot.setAttribute("aria-hidden", "true");
+  ring.setAttribute("aria-hidden", "true");
+  document.body.append(ring, dot);
+  document.documentElement.classList.add("custom-cursor");
+
+  let x = window.innerWidth / 2;
+  let y = window.innerHeight / 2;
+  let ringX = x;
+  let ringY = y;
+  let scale = 1;
+  let targetScale = 1;
+  let frame = null;
+
+  const step = () => {
+    ringX += (x - ringX) * 0.16;
+    ringY += (y - ringY) * 0.16;
+    scale += (targetScale - scale) * 0.18;
+
+    dot.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+    ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%) scale(${scale.toFixed(3)})`;
+
+    if (Math.abs(x - ringX) + Math.abs(y - ringY) > 0.3 || Math.abs(targetScale - scale) > 0.01) {
+      frame = requestAnimationFrame(step);
+    } else {
+      frame = null;
+    }
+  };
+
+  const play = () => {
+    if (!frame) {
+      frame = requestAnimationFrame(step);
+    }
+  };
+
+  window.addEventListener("pointermove", (event) => {
+    x = event.clientX;
+    y = event.clientY;
+    dot.classList.remove("is-out");
+    ring.classList.remove("is-out");
+    play();
+  }, { passive: true });
+
+  const INTERACTIVE = "a, button, [role='button'], summary, label, input, textarea, select, .hero-visual";
+
+  document.addEventListener("pointerover", (event) => {
+    const target = event.target instanceof Element ? event.target.closest(INTERACTIVE) : null;
+    targetScale = target ? 1.9 : 1;
+    ring.classList.toggle("is-active", Boolean(target));
+    play();
+  }, { passive: true });
+
+  document.documentElement.addEventListener("pointerleave", () => {
+    dot.classList.add("is-out");
+    ring.classList.add("is-out");
+  });
+};
+
+// Decode-style scramble on section headings the first time they scroll in.
+const startScrambleHeadings = () => {
+  const targets = document.querySelectorAll(".section-head h2");
+
+  if (targets.length === 0 || !("IntersectionObserver" in window)) {
+    return;
+  }
+
+  const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%&$+=*";
+
+  const scramble = (el) => {
+    const text = el.textContent;
+    // Screen readers keep the real heading while the visual text churns.
+    el.setAttribute("aria-label", text);
+
+    const duration = 24;
+    let tick = 0;
+
+    const step = () => {
+      tick += 1;
+      const settled = Math.floor((tick / duration) * text.length);
+      let out = text.slice(0, settled);
+
+      for (let i = settled; i < text.length; i += 1) {
+        out += text[i] === " " ? " " : CHARS[Math.floor(Math.random() * CHARS.length)];
+      }
+
+      el.textContent = out;
+
+      if (tick < duration) {
+        requestAnimationFrame(step);
+      } else {
+        el.textContent = text;
+        el.removeAttribute("aria-label");
+      }
+    };
+
+    requestAnimationFrame(step);
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        observer.unobserve(entry.target);
+        scramble(entry.target);
+      }
+    });
+  }, { threshold: 0.5 });
+
+  targets.forEach((target) => observer.observe(target));
+};
+
+// Scroll-velocity skew: card grids lean slightly with scroll inertia and
+// spring back to rest. The rAF loop only runs while scrolling.
+const startScrollSkew = () => {
+  const root = document.documentElement;
+  let lastY = window.scrollY;
+  let velocity = 0;
+  let frame = null;
+
+  const step = () => {
+    const y = window.scrollY;
+    velocity += (y - lastY - velocity) * 0.16;
+    lastY = y;
+
+    if (Math.abs(velocity) > 0.06) {
+      const skew = Math.max(-0.8, Math.min(0.8, velocity * 0.018));
+      root.style.setProperty("--scroll-skew", `${skew.toFixed(3)}deg`);
+      frame = requestAnimationFrame(step);
+    } else {
+      root.style.setProperty("--scroll-skew", "0deg");
+      frame = null;
+    }
+  };
+
+  window.addEventListener("scroll", () => {
+    if (!frame) {
+      frame = requestAnimationFrame(step);
+    }
+  }, { passive: true });
+};
+
+// Footer HUD: status dot + live JST clock, terminal-style.
+const startFooterHud = () => {
+  const footer = document.querySelector(".site-footer");
+
+  if (!footer) {
+    return;
+  }
+
+  const hud = document.createElement("p");
+  hud.className = "footer-hud";
+  hud.setAttribute("aria-hidden", "true");
+
+  const dot = document.createElement("span");
+  dot.className = "hud-dot";
+
+  const label = document.createElement("span");
+  label.textContent = "SYS.ONLINE";
+
+  const time = document.createElement("span");
+  time.className = "hud-time";
+
+  hud.append(dot, label, time);
+
+  const formatter = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Tokyo",
+    hour12: false,
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit"
+  });
+
+  const update = () => {
+    time.textContent = `${formatter.format(new Date())} JST`;
+  };
+
+  update();
+  setInterval(update, 1000);
+
+  if (footer.children.length > 1) {
+    footer.insertBefore(hud, footer.lastElementChild);
+  } else {
+    footer.append(hud);
+  }
 };
 
 const scheduleEnhancements = () => {

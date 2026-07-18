@@ -882,12 +882,23 @@ small {
   transform: translateZ(28px);
 }
 
+/* Bottom shade + a glare band that sweeps across on hover */
 .project-image::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 58%, rgb(0 0 0 / 0.2));
+  background:
+    linear-gradient(105deg, transparent 42%, rgb(255 255 255 / 0.14) 50%, transparent 58%) no-repeat,
+    linear-gradient(180deg, transparent 58%, rgb(0 0 0 / 0.2));
+  background-size: 240% 100%, 100% 100%;
+  background-position: 170% 0, 0 0;
   pointer-events: none;
+  transition: background-position 760ms var(--ease-out);
+}
+
+.project-card:hover .project-image::after,
+.project-card:focus-within .project-image::after {
+  background-position: -70% 0, 0 0;
 }
 
 .project-image img {
@@ -1482,4 +1493,338 @@ small {
   .button {
     width: 100%;
   }
+}
+
+/* ============================================================
+   Marquee — infinite type belt between Story and Projects
+   ============================================================ */
+
+.marquee {
+  margin-inline: calc(50% - 50vw);
+  border-top: 1px solid var(--line-soft);
+  padding: 30px 0;
+  overflow: hidden;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+}
+
+.enhanced .marquee-track {
+  animation: marquee-scroll 32s linear infinite;
+}
+
+@keyframes marquee-scroll {
+  to { translate: -50% 0; }
+}
+
+.marquee-line {
+  display: flex;
+  align-items: center;
+  gap: clamp(28px, 4vw, 56px);
+  margin: 0;
+  padding-right: clamp(28px, 4vw, 56px);
+  white-space: nowrap;
+  color: color-mix(in oklch, var(--text) 42%, transparent);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: clamp(1rem, 2.2vw, 1.5rem);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.marquee-star {
+  color: var(--cyan);
+  font-size: 0.8em;
+}
+
+/* ============================================================
+   Scroll-velocity skew — grids lean with scroll inertia
+   (JS sets --scroll-skew on <html>; rests at 0deg)
+   ============================================================ */
+
+.enhanced .card-grid {
+  transform: skewY(var(--scroll-skew, 0deg));
+}
+
+/* ============================================================
+   Custom cursor — dot + trailing ring (fine pointers only;
+   JS gates on hover/pointer media queries before enabling)
+   ============================================================ */
+
+.custom-cursor,
+.custom-cursor :is(a, button, [role="button"], summary, label, .hero-visual) {
+  cursor: none;
+}
+
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 80;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform;
+  transition: opacity 220ms ease;
+}
+
+.cursor-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--cyan);
+  box-shadow: 0 0 10px color-mix(in oklch, var(--cyan) 70%, transparent);
+}
+
+.cursor-ring {
+  width: 34px;
+  height: 34px;
+  border: 1px solid color-mix(in oklch, var(--text) 45%, transparent);
+  transition: opacity 220ms ease, border-color 200ms ease, background 200ms ease;
+}
+
+.cursor-ring.is-active {
+  border-color: color-mix(in oklch, var(--cyan) 75%, transparent);
+  background: color-mix(in oklch, var(--cyan) 10%, transparent);
+}
+
+.cursor-dot.is-out,
+.cursor-ring.is-out {
+  opacity: 0;
+}
+
+/* The dialog lives in the top layer, above the fixed cursor —
+   fall back to the native cursor while the palette is open */
+.cmdk-open .cursor-dot,
+.cmdk-open .cursor-ring {
+  opacity: 0;
+}
+
+/* ============================================================
+   Command palette (⌘K)
+   ============================================================ */
+
+.nav-cmdk {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  padding: 7px 12px;
+  background: oklch(0.95 0.02 240 / 0.05);
+  color: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: border-color 180ms ease, background 180ms ease, color 180ms ease;
+}
+
+.nav-cmdk:hover,
+.nav-cmdk:focus-visible {
+  border-color: var(--line-hover);
+  background: color-mix(in oklch, var(--cyan) 12%, transparent);
+  color: var(--text);
+}
+
+@media (hover: none) {
+  .nav-cmdk {
+    display: none;
+  }
+}
+
+.cmdk {
+  width: min(580px, calc(100vw - 32px));
+  margin: 14vh auto auto;
+  border: 1px solid var(--line-strong);
+  border-radius: 18px;
+  padding: 0;
+  background: oklch(0.17 0.016 255 / 0.92);
+  color: var(--text);
+  box-shadow: var(--shadow-strong);
+  backdrop-filter: blur(26px) saturate(160%);
+  opacity: 0;
+  translate: 0 -14px;
+  scale: 0.98;
+  transition:
+    opacity 200ms ease,
+    translate 200ms var(--ease-out),
+    scale 200ms var(--ease-out),
+    display 200ms allow-discrete,
+    overlay 200ms allow-discrete;
+}
+
+.cmdk[open] {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+}
+
+.cmdk::backdrop {
+  background: rgb(0 0 0 / 0.45);
+  backdrop-filter: blur(5px);
+  opacity: 0;
+  transition:
+    opacity 200ms ease,
+    display 200ms allow-discrete,
+    overlay 200ms allow-discrete;
+}
+
+.cmdk[open]::backdrop {
+  opacity: 1;
+}
+
+@starting-style {
+  .cmdk[open] {
+    opacity: 0;
+    translate: 0 -14px;
+    scale: 0.98;
+  }
+
+  .cmdk[open]::backdrop {
+    opacity: 0;
+  }
+}
+
+.cmdk-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 18px;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.cmdk-glyph {
+  color: var(--cyan);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-weight: 700;
+}
+
+.cmdk-input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 1.02rem;
+}
+
+.cmdk-input:focus {
+  outline: none;
+}
+
+.cmdk-input::placeholder {
+  color: var(--muted);
+}
+
+.cmdk-esc {
+  border: 0;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.cmdk kbd {
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  padding: 2px 7px;
+  background: oklch(0.95 0.02 240 / 0.05);
+  color: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+}
+
+.cmdk-list {
+  max-height: min(330px, 46vh);
+  margin: 0;
+  padding: 8px;
+  list-style: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+}
+
+.cmdk-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-radius: 10px;
+  padding: 11px 12px;
+  cursor: pointer;
+}
+
+.cmdk-item-label {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.cmdk-item[aria-selected="true"] {
+  background: color-mix(in oklch, var(--cyan) 13%, transparent);
+}
+
+.cmdk-item-hint {
+  overflow: hidden;
+  color: var(--muted);
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cmdk-empty {
+  margin: 0;
+  padding: 26px 16px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.cmdk-foot {
+  display: flex;
+  gap: 18px;
+  margin: 0;
+  padding: 11px 18px;
+  border-top: 1px solid var(--line-soft);
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.cmdk-foot span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ============================================================
+   Footer HUD — live JST clock + status dot
+   ============================================================ */
+
+.footer-hud {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+}
+
+.hud-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--mint);
+  box-shadow: 0 0 8px var(--mint);
+  animation: hud-pulse 2.6s ease-in-out infinite;
+}
+
+@keyframes hud-pulse {
+  50% { opacity: 0.3; }
+}
+
+.hud-time {
+  font-variant-numeric: tabular-nums;
 }
