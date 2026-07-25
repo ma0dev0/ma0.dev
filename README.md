@@ -16,13 +16,16 @@ ma0 tools の公式サイト兼リンク集です。
 
 - ダーク専用(`color-scheme: dark`)
 - カラートークンは OKLCH、ボーダーは `color-mix()` ベース
+- トップページは Chapter 00〜05 の縦スクロール物語として構成。各章は「進捗カウンタ+ヘアラインの spine+巨大なゴースト語」のデバイダで区切られ、本文は3カラムのエディトリアル組(左=モノスペースのメタ、中=見出し+リード、右=本文)。章の識別子は `data-chapter-no` / `data-chapter-name` として HTML に持たせ、JS 側に章リストを持たない
+- 右端に固定の章インデックスレール(`nav` + `aria-current`)。ビューポート幅 1180px 未満ではヘッダナビが代替になるため非表示。Story 章の下にはシーン進行を示すサブ目盛りが4本並ぶ
+- 章デバイダのカウンタは章ごとの通過量を 000〜999 で表示(`aria-hidden`。スクロール停止時は最終値で静止)
 - スクロール連動アニメーション(`animation-timeline`)、View Transitions、Anchor Positioning、`@starting-style`、scroll-state コンテナクエリなどの最新CSSはすべてプログレッシブエンハンスメントとして実装(非対応ブラウザでは静的に劣化)
 - `main.js` の演出(パーティクル、3Dチルト、マグネティックボタン、スポットライト)は `prefers-reduced-motion` / データセーバー時には起動しません
 - 「Story」セクションはスクロール量でCanvasパーティクルをスクラブ再生するシネマティック演出(sticky ステージ+決定論的タイムライン。スクロールを戻すと巻き戻る)。JSなし・reduced-motion 時はテキストのみの静的表示に劣化
 - Aurora シェーダーはスクロール位置に連動してパレットがシアン系→マゼンタ系へ遷移し、ヒーローはスクロールで退場(`animation-timeline: view()`)
 - コマンドパレット(⌘K / Ctrl+K):ネイティブ `<dialog>` + `@starting-style` 開閉トランジション。ページ内アンカー・別ページ・外部リンク・メールコピーを検索して実行できる。機能系なので reduced-motion 時も有効
 - カスタムカーソル(ドット+遅延追従リング):`hover: hover` かつ `pointer: fine` のみ。インタラクティブ要素上でリングが拡大
-- セクション見出しは viewport 進入時に一度だけ文字化け→確定の「デコード」演出(スクランブル中は `aria-label` で本来の見出しを保持)
+- 章見出しは viewport 進入時に一度だけ文字化け→確定の「デコード」演出(スクランブル中は `aria-label` で本来の見出しを保持)
 - Story と Projects の間に JetBrains Mono の無限マーキーベルト(CSSアニメーションのみ、2連トラックの `-50%` ループ)
 - スクロール速度に応じてカードグリッドが僅かに `skewY` する慣性演出(`--scroll-skew`、静止時は 0deg に復帰)
 - フッターに SYS.ONLINE ステータス+JST ライブ時計の HUD(JSで挿入、`aria-hidden`)
