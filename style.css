@@ -29,6 +29,14 @@
   --shadow-strong: 0 24px 70px rgb(0 0 0 / 0.45);
   --shadow-soft: 0 8px 28px rgb(0 0 0 / 0.32);
 
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --mono-size: 0.74rem;
+  --mono-track: 0.14em;
+
+  /* Escape the .page content box to the viewport edges */
+  --bleed: calc(50% - 50vw);
+  --chapter-gap: clamp(20px, 3vw, 44px);
+
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-spring: linear(
     0, 0.009, 0.035 2.1%, 0.141 4.4%, 0.723 12.9%, 0.938 16.7%,
@@ -427,6 +435,35 @@ small {
   box-shadow: 0 0 10px var(--mint);
 }
 
+.eyebrow-sep {
+  color: var(--line-strong);
+}
+
+.eyebrow-range {
+  color: var(--cyan);
+}
+
+/* Scroll cue — the hairline hint at the foot of the cover */
+.scroll-cue {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: var(--mono-size);
+  letter-spacing: var(--mono-track);
+  text-transform: uppercase;
+}
+
+.scroll-cue-line {
+  flex: 1;
+  max-width: 180px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--cyan), transparent);
+}
+
 .hero h1 {
   margin: 0 0 22px;
   font-size: clamp(3.6rem, 8.8vw, 6.8rem);
@@ -790,6 +827,224 @@ small {
   margin: 0;
   color: var(--muted);
   font-size: 1.04rem;
+}
+
+/* ============================================================
+   Chapters — the page reads as one scrolled document
+   ============================================================ */
+
+.chapter.section {
+  /* The divider carries the visual break instead of a rule */
+  border-top: 0;
+  /* Chapters are far taller than a plain section; a stale estimate would make
+     the scrollbar (and the rail/counters riding on it) jump while skimming. */
+  contain-intrinsic-size: auto 1100px;
+}
+
+.chapter--film {
+  /* Not a .section: content-visibility would break the sticky story stage */
+  padding-bottom: 72px;
+}
+
+/* --- Divider: counter, hairline spine, ghost word --- */
+
+.chapter-divider {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: clamp(30px, 5vw, 64px) 0 clamp(24px, 4vw, 52px);
+}
+
+.chapter-counter {
+  order: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: var(--mono-size);
+  letter-spacing: var(--mono-track);
+  text-transform: uppercase;
+}
+
+.counter-value {
+  color: var(--cyan);
+  font-variant-numeric: tabular-nums;
+}
+
+.chapter-spine {
+  order: 2;
+  width: 1px;
+  height: clamp(80px, 12vh, 170px);
+  background: linear-gradient(180deg, var(--cyan), var(--line-soft));
+}
+
+.chapter-ghost {
+  order: 3;
+  color: color-mix(in oklch, var(--text) 9%, transparent);
+  font-size: clamp(3.2rem, 12vw, 9rem);
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  text-transform: lowercase;
+}
+
+/* --- Editorial three-column grid --- */
+
+.chapter-grid {
+  display: grid;
+  grid-template-columns: minmax(140px, 0.75fr) minmax(0, 1.35fr) minmax(0, 1.3fr);
+  gap: var(--chapter-gap);
+  align-items: start;
+}
+
+.chapter-meta {
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+  border-top: 1px solid var(--line-strong);
+  padding-top: 12px;
+  font-family: var(--mono);
+  font-size: var(--mono-size);
+  letter-spacing: var(--mono-track);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.chapter-index {
+  color: var(--cyan);
+  font-weight: 700;
+}
+
+.chapter-lead h2 {
+  margin: 0 0 14px;
+  font-size: clamp(2rem, 3.6vw, 2.6rem);
+  line-height: 1.1;
+}
+
+.chapter-standfirst {
+  margin: 0;
+  color: var(--text);
+  font-size: clamp(1.05rem, 1.6vw, 1.24rem);
+  line-height: 1.6;
+  text-wrap: pretty;
+}
+
+.chapter-body > :first-child {
+  margin-top: 0;
+}
+
+/* Card grids need the full measure; let them span the last two columns. */
+.chapter--wide .chapter-lead,
+.chapter--wide .chapter-body {
+  grid-column: 2 / -1;
+}
+
+.chapter--wide .chapter-body {
+  margin-top: 34px;
+}
+
+/* ============================================================
+   Chapter rail — fixed index down the right edge
+   ============================================================ */
+
+.chapter-rail {
+  position: fixed;
+  top: 50%;
+  right: clamp(14px, 2vw, 30px);
+  z-index: 9;
+  translate: 0 -50%;
+}
+
+.rail-list {
+  display: grid;
+  gap: 12px;
+  justify-items: end;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rail-tick {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: var(--mono-track);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+/* The tick mark itself, between the name and the number */
+.rail-tick::before {
+  content: "";
+  order: 2;
+  width: 16px;
+  height: 1px;
+  background: var(--line-strong);
+  transition: width 320ms var(--ease-out), background-color 320ms var(--ease-out);
+}
+
+.rail-name {
+  order: 1;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 320ms var(--ease-out);
+}
+
+.rail-num {
+  order: 3;
+  min-width: 2ch;
+  font-variant-numeric: tabular-nums;
+}
+
+.rail-tick:hover .rail-name,
+.rail-tick:focus-visible .rail-name,
+.rail-tick[aria-current="true"] .rail-name {
+  opacity: 1;
+}
+
+.rail-tick:hover::before,
+.rail-tick:focus-visible::before {
+  width: 26px;
+  background: var(--line-hover);
+}
+
+.rail-tick[aria-current="true"] {
+  color: var(--text);
+}
+
+.rail-tick[aria-current="true"]::before {
+  width: 30px;
+  background: var(--cyan);
+}
+
+/* Scene sub-ticks for the film chapter */
+.rail-subs {
+  display: grid;
+  gap: 5px;
+  justify-items: end;
+  margin: 7px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rail-sub {
+  width: 8px;
+  height: 1px;
+  background: var(--line);
+  transition: width 260ms var(--ease-out), background-color 260ms var(--ease-out);
+}
+
+.rail-sub[data-active] {
+  width: 16px;
+  background: var(--mint);
 }
 
 /* ============================================================
@@ -1349,7 +1604,9 @@ small {
       animation-range: entry 0% cover 30%;
     }
 
-    .section-head {
+    .section-head,
+    .chapter-lead,
+    .chapter-meta {
       animation: head-reveal linear both;
       animation-timeline: view();
       animation-range: entry 0% cover 30%;
@@ -1408,6 +1665,30 @@ small {
    Responsive
    ============================================================ */
 
+/* The rail needs gutter the 1220px page does not leave below this width.
+   The header nav covers the same jumps, so nothing is lost. */
+@media (max-width: 1180px) {
+  .chapter-rail {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .chapter-grid {
+    grid-template-columns: minmax(120px, 0.7fr) minmax(0, 1.6fr);
+  }
+
+  .chapter-body,
+  .chapter--wide .chapter-lead,
+  .chapter--wide .chapter-body {
+    grid-column: 2 / -1;
+  }
+
+  .chapter-body {
+    margin-top: 28px;
+  }
+}
+
 @media (max-width: 760px) {
   .page {
     padding-right: 16px;
@@ -1461,6 +1742,18 @@ small {
   .card-grid,
   .links-grid {
     grid-template-columns: 1fr;
+  }
+
+  .chapter-grid,
+  .chapter-body,
+  .chapter--wide .chapter-lead,
+  .chapter--wide .chapter-body {
+    grid-column: auto;
+    grid-template-columns: 1fr;
+  }
+
+  .chapter-body {
+    margin-top: 0;
   }
 
   .link-card {

@@ -79,6 +79,31 @@ const startEnhancements = () => {
     navById.get(id)?.setAttribute("aria-current", "true");
   };
 
+  const railTicks = Array.from(document.querySelectorAll(".rail-tick[data-rail-no]"));
+  const railByNo = new Map(railTicks.map((tick) => [tick.dataset.railNo, tick]));
+
+  // One event, one truth: the rail, the chapter counters and anything added
+  // later (sound, figure bands) all read the same "which chapter are we in".
+  const setCurrentChapter = (section) => {
+    setCurrentNav(section.id);
+
+    railTicks.forEach((tick) => tick.removeAttribute("aria-current"));
+    railByNo.get(section.dataset.chapterNo)?.setAttribute("aria-current", "true");
+
+    document.dispatchEvent(new CustomEvent("chapterchange", {
+      detail: { no: section.dataset.chapterNo, name: section.dataset.chapterName }
+    }));
+  };
+
+  const markCurrent = (el) => {
+    if (el?.hasAttribute("data-chapter")) {
+      setCurrentChapter(el);
+      return;
+    }
+
+    setCurrentNav(el?.id ?? "");
+  };
+
   const getHashTarget = (hash) => {
     let id = hash.slice(1);
 
@@ -97,7 +122,7 @@ const startEnhancements = () => {
     }
 
     const scroll = () => {
-      setCurrentNav(target.id);
+      markCurrent(target);
       target.scrollIntoView({ behavior: "smooth", block: "start" });
 
       if (location.hash !== hash) {
@@ -135,13 +160,13 @@ const startEnhancements = () => {
     const currentTarget = getHashTarget(location.hash);
 
     if (currentTarget) {
-      setCurrentNav(currentTarget.id);
+      markCurrent(currentTarget);
     }
   }
 
-  if ("IntersectionObserver" in window && navLinks.length > 0) {
-    const sections = Array.from(navById.keys(), (id) => document.getElementById(id)).filter(Boolean);
+  const chapters = Array.from(document.querySelectorAll("[data-chapter]"));
 
+  if ("IntersectionObserver" in window && chapters.length > 0) {
     const observer = new IntersectionObserver(
       (entries) => {
         const current = entries
@@ -152,15 +177,16 @@ const startEnhancements = () => {
           return;
         }
 
-        setCurrentNav(current.target.id);
+        setCurrentChapter(current.target);
       },
       {
-        rootMargin: "-28% 0px -58% 0px",
-        threshold: [0.1, 0.35, 0.6]
+        // Wide enough that a short chapter still crosses the band.
+        rootMargin: "-20% 0px -50% 0px",
+        threshold: [0, 0.1, 0.35, 0.6]
       }
     );
 
-    sections.forEach((section) => observer.observe(section));
+    chapters.forEach((chapter) => observer.observe(chapter));
   }
 
   // Spotlight position drives the inner wash and the border ring glow (CSS
@@ -222,7 +248,7 @@ const startEnhancements = () => {
   startStoryScroller();
   startCustomCursor();
   startScrambleHeadings();
-  startScrollSkew();
+  startScrollDriver(chapters);
   startFooterHud();
 };
 
@@ -747,6 +773,7 @@ const startStoryScroller = () => {
   const captions = Array.from(section.querySelectorAll(".story-caption"));
   const sceneNo = section.querySelector(".story-scene-no");
   const progressFill = section.querySelector(".story-progress-fill");
+  const railSubs = Array.from(document.querySelectorAll(".rail-sub"));
 
   // Timeline keyframes. shape ids: 0 scattered cloud, 1 "ma0", 2 paw,
   // 3 "OSS", 4 dissolve. Equal t on consecutive keys with the same shape
@@ -919,14 +946,20 @@ const startStoryScroller = () => {
       progressFill.style.scale = `${p.toFixed(4)} 1`;
     }
 
+    const scene = p < 0.2 ? 1 : p < 0.5 ? 2 : p < 0.77 ? 3 : 4;
+
     if (sceneNo) {
-      const scene = p < 0.2 ? 1 : p < 0.5 ? 2 : p < 0.77 ? 3 : 4;
       const label = `0${scene}`;
 
       if (sceneNo.textContent !== label) {
         sceneNo.textContent = label;
       }
     }
+
+    // Same scene number drives the rail's sub-ticks — no second calculation.
+    railSubs.forEach((sub, i) => {
+      sub.toggleAttribute("data-active", i < scene);
+    });
   };
 
   const step = () => {
@@ -1337,7 +1370,7 @@ const startCustomCursor = () => {
 
 // Decode-style scramble on section headings the first time they scroll in.
 const startScrambleHeadings = () => {
-  const targets = document.querySelectorAll(".section-head h2");
+  const targets = document.querySelectorAll(".section-head h2, .chapter-lead h2");
 
   if (targets.length === 0 || !("IntersectionObserver" in window)) {
     return;
@@ -1387,18 +1420,47 @@ const startScrambleHeadings = () => {
   targets.forEach((target) => observer.observe(target));
 };
 
-// Scroll-velocity skew: card grids lean slightly with scroll inertia and
-// spring back to rest. The rAF loop only runs while scrolling.
-const startScrollSkew = () => {
+// Scroll driver: card grids lean with scroll inertia and spring back to rest,
+// and each chapter's divider counter ticks 000→999 across its own extent.
+// The rAF loop only runs while scrolling.
+const startScrollDriver = (chapters = []) => {
   const root = document.documentElement;
+  const counters = chapters
+    .map((chapter) => ({ chapter, value: chapter.querySelector(".counter-value") }))
+    .filter((entry) => entry.value);
+
   let lastY = window.scrollY;
   let velocity = 0;
   let frame = null;
+
+  const updateCounters = () => {
+    const viewport = window.innerHeight;
+
+    counters.forEach(({ chapter, value }) => {
+      const rect = chapter.getBoundingClientRect();
+
+      if (rect.bottom < 0 || rect.top > viewport) {
+        return;
+      }
+
+      // 0 when the chapter's top reaches the viewport bottom, 1 when its
+      // bottom reaches the viewport top — the same rect-over-range shape the
+      // story scrubber uses.
+      const range = rect.height + viewport;
+      const p = Math.max(0, Math.min(1, (viewport - rect.top) / range));
+      const label = String(Math.round(p * 999)).padStart(3, "0");
+
+      if (value.textContent !== label) {
+        value.textContent = label;
+      }
+    });
+  };
 
   const step = () => {
     const y = window.scrollY;
     velocity += (y - lastY - velocity) * 0.16;
     lastY = y;
+    updateCounters();
 
     if (Math.abs(velocity) > 0.06) {
       const skew = Math.max(-0.8, Math.min(0.8, velocity * 0.018));
@@ -1407,6 +1469,9 @@ const startScrollSkew = () => {
     } else {
       root.style.setProperty("--scroll-skew", "0deg");
       frame = null;
+      // The loop stops here, so write the resting value once more rather than
+      // leaving the counters one frame short of where the reader stopped.
+      updateCounters();
     }
   };
 
@@ -1415,6 +1480,8 @@ const startScrollSkew = () => {
       frame = requestAnimationFrame(step);
     }
   }, { passive: true });
+
+  updateCounters();
 };
 
 // Footer HUD: status dot + live JST clock, terminal-style.
