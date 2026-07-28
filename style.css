@@ -1437,6 +1437,21 @@ small {
   margin: 0;
 }
 
+.footer-links {
+  display: flex;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.footer-links a {
+  text-decoration-color: color-mix(in oklch, var(--muted) 55%, transparent);
+}
+
+.footer-links a:hover {
+  color: var(--cyan);
+  text-decoration-color: currentColor;
+}
+
 .footer-tag {
   font-family: "JetBrains Mono", ui-monospace, monospace;
   font-size: 0.76rem;
