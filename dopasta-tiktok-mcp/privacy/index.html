@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0b0d14">
+  <title>プライバシーポリシー | Dopasta TikTok MCP</title>
+  <meta name="description" content="Dopasta TikTok MCPのプライバシーポリシー。TikTokデータ、OAuthトークン、動画ファイルの取扱いを説明します。">
+  <link rel="canonical" href="https://ma0.dev/dopasta-tiktok-mcp/privacy/">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400..700&amp;family=JetBrains+Mono:wght@400;600;700&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/legal.css">
+</head>
+<body class="legal-page">
+  <div class="page">
+    <header class="site-header legal-header">
+      <a class="site-logo" href="/">
+        <span class="logo-dot" aria-hidden="true"></span>
+        ma0 tools
+      </a>
+      <nav class="legal-nav" aria-label="法務ページ">
+        <a href="/dopasta-tiktok-mcp/privacy/" aria-current="page">Privacy</a>
+        <a href="/dopasta-tiktok-mcp/terms/">Terms</a>
+      </nav>
+    </header>
+
+    <main class="legal-main">
+      <p class="legal-kicker">Dopasta TikTok MCP / Legal</p>
+      <h1>プライバシー<br>ポリシー</h1>
+      <p class="legal-summary">Dopasta TikTok MCP（以下「本ツール」）は、利用者自身のコンピューターで動作するデスクトップ向けMCPサーバーです。本ポリシーは、本ツールがTikTok関連データをどのように扱うかを説明します。</p>
+      <p class="legal-meta"><span>制定・最終更新</span><time datetime="2026-07-28">2026-07-28</time></p>
+
+      <section class="legal-section">
+        <h2>1. 運用方式</h2>
+        <p>本ツールは共通のTikTokアプリ、共通OAuthサーバー、運営者管理のクラウドデータベースを提供しません。各利用者が自分で作成・管理するTikTok DeveloperアプリのClient KeyおよびClient Secretを使用します。</p>
+      </section>
+
+      <section class="legal-section">
+        <h2>2. 取り扱う情報</h2>
+        <p>TikTok OAuthで利用者が許可した範囲に限り、次の情報を取り扱います。</p>
+        <ul>
+          <li>表示名やアバターなどの基本プロフィール情報（<code>user.info.basic</code>）</li>
+          <li>利用者自身の公開動画一覧および再生数、いいね数、コメント数、共有数（<code>video.list</code>）</li>
+          <li>TikTokの受信箱・下書き編集導線へ送信する、利用者が明示的に選択したローカル動画（<code>video.upload</code>）</li>
+          <li>OAuthのアクセストークン、リフレッシュトークン、付与済みスコープおよび有効期限</li>
+        </ul>
+      </section>
+
+      <section class="legal-section">
+        <h2>3. 利用目的</h2>
+        <ul>
+          <li>利用者自身のTikTok動画と公開指標を確認するため</li>
+          <li>選択された動画をTikTokの下書き編集導線へ送信するため</li>
+          <li>OAuth認証を維持・更新し、不正な権限利用を防ぐため</li>
+          <li>エラーを利用者へ返し、本ツールの動作を診断するため</li>
+        </ul>
+      </section>
+
+      <section class="legal-section">
+        <h2>4. 保存場所と保持期間</h2>
+        <ul>
+          <li>OAuthトークンは利用者自身のmacOSキーチェーン内に、TikTok Client Keyごとに保存されます。</li>
+          <li>Client Secretや設定値は利用者自身のローカル環境で管理され、運営者へ自動送信されません。</li>
+          <li>取得したプロフィール・動画指標は、呼び出し結果として利用者が選択したMCPクライアントへ返されます。本ツール独自のクラウド保存は行いません。MCPクライアント側の保持については、そのサービスの規約・ポリシーが適用されます。</li>
+          <li>動画ファイルは本ツール独自のサーバーへ保存されず、利用者の操作によりTikTokへ直接送信されます。</li>
+        </ul>
+      </section>
+
+      <section class="legal-section">
+        <h2>5. 第三者提供</h2>
+        <p>本ツールは、個人データを販売しません。機能の実行に必要な範囲でTikTokのAPIへデータを送信するほか、運営者が第三者へデータを提供することはありません。利用者が選択したMCPクライアントを通じて処理される情報は、そのクライアントのデータ取扱いに従います。</p>
+      </section>
+
+      <section class="legal-section">
+        <h2>6. 利用者による管理と削除</h2>
+        <p>利用者はTikTokのアプリ権限設定から本ツールへのアクセスを取り消せます。ローカルに保存されたOAuthトークンは、macOSの「キーチェーンアクセス」でサービス名 <code>dopasta-tiktok-mcp</code> の項目を削除することで消去できます。本ツールをアンインストールしただけでは、キーチェーン項目が残る場合があります。</p>
+      </section>
+
+      <section class="legal-section">
+        <h2>7. セキュリティ</h2>
+        <p>本ツールは、トークンをログやMCPレスポンスへ含めず、アップロードを初期状態で無効にし、対象ファイルの明示的確認を要求します。ただし、インターネット通信やローカル環境の完全な安全性を保証するものではありません。</p>
+      </section>
+
+      <section class="legal-section">
+        <h2>8. 変更とお問い合わせ</h2>
+        <p>機能や法令・プラットフォーム要件の変更に応じて本ポリシーを更新することがあります。重要な変更は本ページの更新日で示します。お問い合わせは <strong>contact [at] ma0.dev</strong> または<a href="https://github.com/ma0dev0" target="_blank" rel="noopener noreferrer">GitHub公開プロフィール</a>からお願いします。</p>
+      </section>
+
+      <section class="legal-section legal-en" lang="en">
+        <h2>English summary</h2>
+        <p>Dopasta TikTok MCP is a local desktop MCP server. Each user supplies and controls their own TikTok Developer application and credentials. Authorized profile data, owned public video metrics, and user-selected draft uploads are processed only to provide the requested functions. OAuth tokens are stored locally in the user’s macOS Keychain. The operator does not run a shared OAuth service or application database and does not sell personal data.</p>
+      </section>
+
+      <p class="legal-note">関連文書: <a href="/dopasta-tiktok-mcp/terms/">Dopasta TikTok MCP 利用規約</a></p>
+    </main>
+
+    <footer class="site-footer">
+      <p>ma0.dev / Dopasta TikTok MCP</p>
+      <p class="footer-links"><a href="/">Home</a><span aria-hidden="true">·</span><a href="/dopasta-tiktok-mcp/terms/">Terms</a></p>
+      <p class="footer-tag">local-first / BYO TikTok app</p>
+    </footer>
+  </div>
+</body>
+</html>
