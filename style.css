@@ -1127,6 +1127,12 @@ small {
   box-shadow: var(--shadow-strong);
 }
 
+.project-card--upcoming {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: calc(50% - 10px);
+}
+
 .project-image {
   position: relative;
   margin: 0 0 20px;
@@ -1209,6 +1215,17 @@ small {
   box-shadow: 0 0 8px var(--mint);
 }
 
+.status--soon {
+  border-color: color-mix(in oklch, var(--magenta) 35%, transparent);
+  background: color-mix(in oklch, var(--magenta) 10%, transparent);
+  color: var(--magenta);
+}
+
+.status--soon::before {
+  background: var(--magenta);
+  box-shadow: 0 0 8px var(--magenta);
+}
+
 .project-meta {
   margin: 0 0 12px;
   color: var(--cyan);
@@ -1262,6 +1279,17 @@ small {
 
 .project-link:active {
   scale: 0.97;
+}
+
+.project-coming-soon {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
 }
 
 /* ---- about ---- */
@@ -1777,6 +1805,11 @@ small {
 
   .project-card {
     transform: none;
+  }
+
+  .project-card--upcoming {
+    grid-column: auto;
+    width: 100%;
   }
 }
 
