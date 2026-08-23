@@ -12,6 +12,18 @@ ma0 tools の公式サイト兼リンク集です。
 
 ビルドなしの静的サイトです。外部ライブラリは使っていません(Webフォントのみ Google Fonts から読み込み)。
 
+## Verification
+
+標準PythonとNode.jsだけで、ローカルリンク、重複ID、画像属性、JA/ENの構造一致、章番号、JavaScript構文を確認できます。
+
+```sh
+python3 scripts/verify_site.py
+```
+
+Pull Request では上記に加え、`html-validate` によるHTML/ARIA検証をGitHub Actionsで実行します。サイト本体には実行時依存やビルド工程を追加していません。
+
+章ナビゲーション、深いリンク、reduced-motion、コマンドパレット、320〜1440pxの横幅は、CI内でPlaywrightを一時導入して実ブラウザ検証します。
+
 ## Design notes
 
 - ダーク専用(`color-scheme: dark`)

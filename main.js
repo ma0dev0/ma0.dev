@@ -51,24 +51,18 @@ const enhanceContact = () => {
   el.append(button);
 };
 
-const startEnhancements = () => {
-  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const saveData = navigator.connection?.saveData === true;
-
-  // Functional, not decorative — enhance before the motion gate so every visitor
-  // gets a real mailto link and copy button. Same for the command palette:
-  // it's navigation, not motion, so reduced-motion users keep it too.
-  enhanceContact();
-  startCommandPalette();
-
-  if (prefersReducedMotion.matches || saveData) {
-    return;
-  }
-
-  document.documentElement.classList.add("enhanced");
-
+// Keep the header and chapter rail in sync independently from visual effects.
+// Reduced-motion and Save-Data visitors still need accurate navigation state.
+const startChapterNavigation = (allowMotion) => {
   const navLinks = Array.from(document.querySelectorAll(".nav-list a[href^='#']"));
   const navById = new Map(navLinks.map((link) => [link.hash.slice(1), link]));
+  const railTicks = Array.from(document.querySelectorAll(".rail-tick[data-rail-no]"));
+  const railByNo = new Map(railTicks.map((tick) => [tick.dataset.railNo, tick]));
+  const chapters = Array.from(document.querySelectorAll("[data-chapter]"));
+
+  if (chapters.length === 0) {
+    return { chapters, navigateToHash: null };
+  }
 
   const setCurrentNav = (id) => {
     if (navLinks.length === 0) {
@@ -79,12 +73,16 @@ const startEnhancements = () => {
     navById.get(id)?.setAttribute("aria-current", "true");
   };
 
-  const railTicks = Array.from(document.querySelectorAll(".rail-tick[data-rail-no]"));
-  const railByNo = new Map(railTicks.map((tick) => [tick.dataset.railNo, tick]));
+  let currentChapter = null;
 
   // One event, one truth: the rail, the chapter counters and anything added
   // later (sound, figure bands) all read the same "which chapter are we in".
   const setCurrentChapter = (section) => {
+    if (!section || section === currentChapter) {
+      return;
+    }
+
+    currentChapter = section;
     setCurrentNav(section.id);
 
     railTicks.forEach((tick) => tick.removeAttribute("aria-current"));
@@ -96,8 +94,14 @@ const startEnhancements = () => {
   };
 
   const markCurrent = (el) => {
-    if (el?.hasAttribute("data-chapter")) {
-      setCurrentChapter(el);
+    const chapter = el?.hasAttribute("data-chapter")
+      ? el
+      : el?.id === "top"
+        ? chapters[0]
+        : el?.closest?.("[data-chapter]");
+
+    if (chapter) {
+      setCurrentChapter(chapter);
       return;
     }
 
@@ -118,31 +122,32 @@ const startEnhancements = () => {
 
   const moveToHash = (hash, target = getHashTarget(hash)) => {
     if (!target) {
-      return;
+      return false;
     }
 
     const scroll = () => {
       markCurrent(target);
-      target.scrollIntoView({ behavior: "smooth", block: "start" });
+      target.scrollIntoView({ behavior: allowMotion ? "smooth" : "instant", block: "start" });
 
       if (location.hash !== hash) {
         history.pushState(null, "", hash);
       }
     };
 
-    if (document.startViewTransition) {
+    if (allowMotion && document.startViewTransition) {
       document.startViewTransition(scroll);
-      return;
+      return true;
     }
 
     scroll();
+    return true;
   };
 
   document.addEventListener("click", (event) => {
     const target = event.target instanceof Element ? event.target : event.target.parentElement;
     const link = target?.closest("a[href^='#']");
 
-    if (!link || link.hash.length <= 1 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+    if (event.defaultPrevented || !link || link.hash.length <= 1 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
       return;
     }
 
@@ -156,38 +161,87 @@ const startEnhancements = () => {
     moveToHash(link.hash, targetElement);
   });
 
-  if (location.hash) {
-    const currentTarget = getHashTarget(location.hash);
+  // A single reading line is more reliable than comparing only the entries
+  // delivered by IntersectionObserver. That callback contains changed entries,
+  // not a snapshot of every chapter, which could leave a previous chapter active.
+  const syncCurrentChapter = () => {
+    const readingLine = window.innerHeight * 0.3;
+    let current = chapters[0];
 
-    if (currentTarget) {
-      markCurrent(currentTarget);
-    }
-  }
-
-  const chapters = Array.from(document.querySelectorAll("[data-chapter]"));
-
-  if ("IntersectionObserver" in window && chapters.length > 0) {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const current = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-
-        if (!current) {
-          return;
-        }
-
-        setCurrentChapter(current.target);
-      },
-      {
-        // Wide enough that a short chapter still crosses the band.
-        rootMargin: "-20% 0px -50% 0px",
-        threshold: [0, 0.1, 0.35, 0.6]
+    chapters.forEach((chapter) => {
+      if (chapter.getBoundingClientRect().top <= readingLine) {
+        current = chapter;
       }
-    );
+    });
 
-    chapters.forEach((chapter) => observer.observe(chapter));
+    setCurrentChapter(current);
+  };
+
+  let syncFrame = null;
+  const requestSync = () => {
+    if (syncFrame) {
+      return;
+    }
+
+    syncFrame = requestAnimationFrame(() => {
+      syncFrame = null;
+      syncCurrentChapter();
+    });
+  };
+
+  window.addEventListener("scroll", requestSync, { passive: true });
+  window.addEventListener("resize", requestSync, { passive: true });
+
+  const currentTarget = location.hash ? getHashTarget(location.hash) : null;
+  if (currentTarget) {
+    markCurrent(currentTarget);
+  } else {
+    syncCurrentChapter();
   }
+
+  // Recheck after the browser restores a hash/scroll position and after the
+  // first layout pass, when web fonts and section geometry may have settled.
+  requestSync();
+
+  const restoreHashPosition = () => {
+    if (!location.hash) {
+      return false;
+    }
+
+    const target = getHashTarget(location.hash);
+    if (!target) {
+      return false;
+    }
+
+    // Initial fragment scrolling happens before the enhanced Story expands.
+    // Re-anchor without animation after that layout change so deep links do
+    // not strand the reader thousands of pixels above their target.
+    target.scrollIntoView({ behavior: "instant", block: "start" });
+    markCurrent(target);
+    return true;
+  };
+
+  return { chapters, navigateToHash: moveToHash, restoreHashPosition };
+};
+
+const startEnhancements = () => {
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const saveData = navigator.connection?.saveData === true;
+  const allowMotion = !prefersReducedMotion.matches && !saveData;
+
+  // Functional, not decorative — initialize these before the motion gate so
+  // reduced-motion and Save-Data visitors keep the same navigation and contact
+  // capabilities without starting the expensive visual effects.
+  enhanceContact();
+  const { chapters, navigateToHash, restoreHashPosition } = startChapterNavigation(allowMotion);
+  startCommandPalette(navigateToHash);
+
+  if (!allowMotion) {
+    return;
+  }
+
+  document.documentElement.classList.add("enhanced");
+  restoreHashPosition?.();
 
   // Spotlight position drives the inner wash and the border ring glow (CSS
   // handles the opacity transition on :hover/:focus-within — this only tracks
@@ -1036,7 +1090,7 @@ const startStoryScroller = () => {
 
 // Command palette (⌘K): quick navigation across pages and external links.
 // Built lazily into a native <dialog> so focus trapping and Esc come for free.
-const startCommandPalette = () => {
+const startCommandPalette = (navigateToHash) => {
   const ja = document.documentElement.lang.startsWith("ja");
   const onHome = document.getElementById("projects") !== null;
   const home = ja ? "/" : "/en/";
@@ -1131,18 +1185,8 @@ const startCommandPalette = () => {
 
     dialog.close();
 
-    if (item.href.startsWith("#")) {
-      const target = document.getElementById(item.href.slice(1));
-
-      if (target) {
-        target.scrollIntoView({ behavior: "smooth", block: "start" });
-
-        if (location.hash !== item.href) {
-          history.pushState(null, "", item.href);
-        }
-
-        return;
-      }
+    if (item.href.startsWith("#") && navigateToHash?.(item.href)) {
+      return;
     }
 
     location.assign(item.href);

@@ -496,7 +496,7 @@ small {
   font-size: 1.02rem;
 }
 
-.hero p:not(.eyebrow):not(.hero-copy):not(.tagline) {
+.hero-content > p:not(.eyebrow):not(.hero-copy):not(.tagline) {
   max-width: 620px;
   margin: 0;
   color: var(--muted);
@@ -836,9 +836,11 @@ small {
 .chapter.section {
   /* The divider carries the visual break instead of a rule */
   border-top: 0;
-  /* Chapters are far taller than a plain section; a stale estimate would make
-     the scrollbar (and the rail/counters riding on it) jump while skimming. */
-  contain-intrinsic-size: auto 1100px;
+  /* These chapters are anchor targets. Estimated off-screen heights make the
+     browser land above deep links when earlier chapters later expand. The DOM
+     is small and images remain lazy, so stable anchor geometry wins here. */
+  content-visibility: visible;
+  contain-intrinsic-size: none;
 }
 
 .chapter--film {
@@ -1588,20 +1590,22 @@ small {
   .eyebrow,
   .hero h1,
   .hero-copy,
-  .hero p:not(.eyebrow):not(.hero-copy):not(.tagline),
+  .hero-content > p:not(.eyebrow):not(.hero-copy):not(.tagline),
   .tagline,
   .hero-actions,
-  .hero-visual {
+  .hero-visual,
+  .scroll-cue {
     animation: hero-rise 700ms var(--ease-out) both;
   }
 
   .eyebrow { animation-delay: 60ms; }
   .hero h1 { animation-delay: 130ms; animation-name: hero-rise, h1-sheen; animation-duration: 700ms, 8s; animation-timing-function: var(--ease-out), ease-in-out; animation-iteration-count: 1, infinite; animation-direction: normal, alternate; animation-fill-mode: both, none; }
   .hero-copy { animation-delay: 200ms; }
-  .hero p:not(.eyebrow):not(.hero-copy):not(.tagline) { animation-delay: 270ms; }
+  .hero-content > p:not(.eyebrow):not(.hero-copy):not(.tagline) { animation-delay: 270ms; }
   .tagline { animation-delay: 340ms; }
   .hero-actions { animation-delay: 410ms; }
   .hero-visual { animation-delay: 300ms; animation-duration: 760ms; }
+  .scroll-cue { animation-delay: 480ms; }
 
   .hero-ring--outer {
     animation: ring-spin 90s linear infinite;
@@ -1779,7 +1783,16 @@ small {
   }
 
   .hero-visual {
+    justify-self: center;
+    width: min(100%, 380px);
     max-height: 380px;
+  }
+
+  .hero-visual-caption {
+    width: 100%;
+    max-width: 100%;
+    white-space: normal;
+    text-align: center;
   }
 
   .card-grid,
@@ -1878,6 +1891,24 @@ small {
 .marquee-star {
   color: var(--cyan);
   font-size: 0.8em;
+}
+
+/* Viewport units include the classic scrollbar, which makes full-bleed bands
+   a few pixels wider than the page. Container units use body's actual content
+   width, so neither desktop nor mobile gains a hidden horizontal scroll range. */
+@supports (width: 100cqw) {
+  body {
+    container-type: inline-size;
+  }
+
+  .aurora-canvas {
+    width: 100cqw;
+  }
+
+  .enhanced .story,
+  .marquee {
+    margin-inline: calc(50% - 50cqw);
+  }
 }
 
 /* ============================================================
