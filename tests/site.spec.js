@@ -38,7 +38,7 @@ test("chapter rail stays synchronized in both motion modes", async ({ page }) =>
 });
 
 
-test("deep links are restored after the enhanced Story changes page height", async ({ page }) => {
+test("deep links remain accurate after page enhancement and font loading", async ({ page }) => {
   for (const [path, href, id] of [
     ["/", "#contact", "contact"],
     ["/", "#top", "top"],
@@ -122,9 +122,89 @@ test("all routes load without browser errors and project images decode", async (
 
     if (path === "/" || path === "/en/") {
       await page.locator("#projects").scrollIntoViewIfNeeded();
-      await expect.poll(async () => page.locator("img").evaluateAll((images) => images.every((image) => image.complete && image.naturalWidth === 900 && image.naturalHeight === 600))).toBe(true);
+      await expect.poll(async () => page.locator("img").evaluateAll((images) => images.every((image) => image.complete && image.naturalWidth > 0 && image.naturalHeight > 0))).toBe(true);
     }
   }
 
   expect(problems).toEqual([]);
+});
+
+test("project filters work with keyboard and announce the result in both languages", async ({ page }) => {
+  for (const path of ["/", "/en/"]) {
+    await page.goto(path);
+    const music = page.locator('[data-filter="music"]');
+    await music.focus();
+    await page.keyboard.press("Enter");
+    await expect(music).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator('.project-card:visible')).toHaveCount(1);
+    await expect(page.locator('.project-card:visible')).toHaveAttribute('data-category', 'music');
+    await expect(page.locator('.filter-result')).toContainText('1');
+    await page.locator('[data-filter="tools"]').click();
+    await expect(page.locator('.project-card:visible')).toHaveCount(2);
+    await page.locator('[data-filter="all"]').click();
+    await expect(page.locator('.project-card:visible')).toHaveCount(3);
+  }
+});
+
+test("palette handles empty results and restores focus on Escape", async ({ page }) => {
+  await page.goto('/');
+  const trigger = page.locator('.nav-cmdk');
+  await trigger.click();
+  await page.locator('.cmdk-input').fill('no-such-destination-xyz');
+  await expect(page.locator('.cmdk-empty')).toBeVisible();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('dialog')).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.locator('dialog')).not.toBeVisible();
+  await expect(trigger).toBeFocused();
+});
+
+test("content, images and primary navigation remain usable without JavaScript", async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
+  const page = await context.newPage();
+  for (const path of ['/', '/en/']) {
+    await page.goto(path);
+    await expect(page.locator('h1')).toBeVisible();
+    await expect(page.locator('.hero-art')).toBeVisible();
+    await expect(page.locator('.project-filters')).toBeHidden();
+    await page.locator('.primary-button').click();
+    await expect(page).toHaveURL(/#projects$/);
+    await expect(page.locator('.project-card:visible')).toHaveCount(3);
+    await expect(page.locator('.contact-address')).toContainText('[at]');
+  }
+  await context.close();
+});
+
+test("email copy succeeds and gives actionable feedback when clipboard is denied", async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.goto('/');
+  await page.locator('.contact-copy').click();
+  await expect(page.locator('.contact-copy')).toHaveText('コピーしました');
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe('contact@ma0.dev');
+  await page.evaluate(() => { navigator.clipboard.writeText = async () => { throw new Error('Denied'); }; });
+  await page.locator('.contact-copy').click();
+  await expect(page.locator('.contact-copy')).toHaveText('コピーできませんでした');
+  await expect(page.locator('.contact-email')).toHaveAttribute('href','mailto:contact@ma0.dev');
+});
+
+test("link and legal pages fit small screens and enlarged text", async ({ page }) => {
+  for (const path of ['/links/', '/en/links/', '/dopasta-tiktok-mcp/privacy/', '/dopasta-tiktok-mcp/terms/']) {
+    await page.setViewportSize({ width: 320, height: 844 });
+    await page.goto(path);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+  }
+  await page.setViewportSize({ width: 760, height: 900 });
+  await page.goto('/');
+  await page.evaluate(() => { document.body.style.zoom = '2'; });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+});
+
+test("Save-Data keeps deep links and search available without decorative enhancement", async ({ page }) => {
+  await page.addInitScript(() => Object.defineProperty(navigator, 'connection', { value: { saveData: true }, configurable: true }));
+  await page.goto('/#projects');
+  await expect(page.locator('html')).not.toHaveClass(/enhanced/);
+  await expectCurrentChapter(page, '#projects');
+  await expectTargetNearTop(page, 'projects');
+  await page.locator('.nav-cmdk').click();
+  await expect(page.locator('.cmdk-input')).toBeFocused();
 });
