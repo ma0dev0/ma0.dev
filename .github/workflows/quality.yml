@@ -1,0 +1,44 @@
+name: Quality
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  static-site:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Verify site structure and local references
+        run: python3 scripts/verify_site.py
+
+      - name: Validate HTML and ARIA
+        run: >-
+          npx --yes html-validate@11.10.0
+          index.html
+          en/index.html
+          links/index.html
+          en/links/index.html
+          dopasta-tiktok-mcp/privacy/index.html
+          dopasta-tiktok-mcp/terms/index.html
+
+      - name: Install browser-test dependencies
+        run: npm install --no-save --package-lock=false @playwright/test@1.62.1
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run browser regression tests
+        run: npx playwright test
