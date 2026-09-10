@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#0b0d14">
+  <meta name="theme-color" content="#050508">
   <title>ma0 tools | Small OSS tools for work automation</title>
   <meta name="description" content="ma0 tools is a small OSS project building lightweight tools for work automation and AI-ready context.">
   <link rel="canonical" href="https://ma0.dev/en/">
@@ -24,12 +24,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&amp;family=JetBrains+Mono:wght@400;600;700&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/cinematic.css">
   <script type="speculationrules">
     {"prefetch":[{"source":"list","urls":["/","/links/","/en/","/en/links/"],"eagerness":"moderate"}]}
   </script>
 </head>
-<body>
-  <canvas class="aurora-canvas" aria-hidden="true"></canvas>
+<body class="cinematic-page">
+  <a class="skip-link" href="#top">Skip to content</a>
 
   <nav class="chapter-rail" aria-label="Chapter index">
     <ol class="rail-list">
@@ -44,12 +45,6 @@
           <span class="rail-num" aria-hidden="true">01</span>
           <span class="rail-name">Origin</span>
         </a>
-        <ol class="rail-subs" aria-hidden="true">
-          <li class="rail-sub"></li>
-          <li class="rail-sub"></li>
-          <li class="rail-sub"></li>
-          <li class="rail-sub"></li>
-        </ol>
       </li>
       <li class="rail-item">
         <a class="rail-tick" href="#projects" data-rail-no="02">
@@ -98,165 +93,78 @@
     <main id="top">
       <section id="cover" class="hero chapter" data-chapter data-chapter-no="00" data-chapter-name="Cover">
         <div class="hero-content">
-          <p class="eyebrow">
-            <span class="eyebrow-dot" aria-hidden="true"></span>
-            Personal OSS / developer tools
-            <span class="eyebrow-sep" aria-hidden="true">·</span>
-            <span class="eyebrow-range">00 → 05</span>
-          </p>
-          <h1>ma0 tools</h1>
-          <p class="hero-copy">Small OSS tools for work automation and AI-ready context.</p>
-          <p>I am a solo developer building lightweight tools for spreadsheets, Backlog, GAS, and other repetitive work that should stay simple.</p>
-          <p class="tagline">Tiny tools for people who want fewer repetitive tasks.</p>
+          <p class="eyebrow">ma0 tools</p>
+          <h1>Less friction.<br><span>More possibility.</span></h1>
+          <p class="hero-copy">Small open-source tools. More room to create.</p>
           <div class="hero-actions" role="group" aria-label="Primary links">
-            <a class="button primary-button" href="#projects">View works<span class="button-arrow" aria-hidden="true">↓</span></a>
-            <a class="button secondary-button" href="https://github.com/ma0dev0" target="_blank" rel="noopener noreferrer">GitHub<span class="button-arrow" aria-hidden="true">↗</span></a>
+            <a class="button primary-button" href="#projects">Explore the tools <span aria-hidden="true">↗</span></a>
+            <a class="button secondary-button" href="#chapter-origin">Discover the story <span aria-hidden="true">↓</span></a>
           </div>
         </div>
-
-        <div class="hero-visual">
-          <div class="hero-ring hero-ring--outer" aria-hidden="true"></div>
-          <div class="hero-ring hero-ring--inner" aria-hidden="true"></div>
-          <canvas class="particle-canvas" role="img" aria-label="Interactive particles drifting between the ma0 logo and a cat paw"></canvas>
-          <p class="hero-visual-fallback" aria-hidden="true">ma0</p>
-          <p class="hero-visual-caption" aria-hidden="true">hover to scatter / click to burst</p>
+        <div class="hero-visual" role="img" aria-label="Small tools working together">
+          <div class="orb-fallback" aria-hidden="true"></div>
+          <canvas class="hero-particles" aria-hidden="true"></canvas>
+          <div class="tool-composition" aria-hidden="true">
+            <div class="floating-window context-window"><div class="window-bar"><i></i><i></i><i></i><span>Context</span></div><div class="context-lines"><span># A little more clarity.</span><span class="code-dim">sources: [work, ideas, notes]</span><span class="code-blue">→ ready for your next idea</span><span class="code-cursor">▍</span></div></div>
+            <div class="floating-window meter-window"><div class="window-bar"><i></i><i></i><i></i><span>Usage Meter</span></div><div class="meter-body"><div class="meter-orbit"><span>42<small>%</small></span></div><div class="meter-detail"><span>More room.</span><strong>Keep creating.</strong><div class="meter-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div><div class="window-bottom"><span>Claude + Codex</span><span>● Ready when you are</span></div></div>
+            <div class="floating-window links-window"><div class="window-bar"><i></i><i></i><i></i><span>Quiet Links</span></div><div class="mini-apps"><span>⌘</span><span>↗</span><span>✳</span><span>◈</span><span>☷</span><span>＋</span></div></div>
+          </div>
+          <p class="hero-visual-caption">Small open-source tools. A little lighter, every day.<span class="preview-note">Illustrative interface concepts</span></p>
         </div>
-
-        <p class="scroll-cue" aria-hidden="true">
-          <span class="scroll-cue-label">Scroll</span>
-          <span class="scroll-cue-line"></span>
-        </p>
+        <div class="hero-bottom"><a href="#chapter-origin"><span class="scroll-mouse" aria-hidden="true"></span>Scroll to see it come together.</a></div>
       </section>
-
       <section id="chapter-origin" class="chapter chapter--film" data-chapter data-chapter-no="01" data-chapter-name="Origin" aria-label="The ma0 tools story">
-        <div class="chapter-divider" aria-hidden="true">
-          <span class="chapter-spine"></span>
-          <span class="chapter-ghost">Origin</span>
-          <p class="chapter-counter">
-            <span class="counter-label">Chapter 01</span>
-            <span class="counter-value">000</span>
-          </p>
-        </div>
-        <div class="chapter-grid">
-          <div class="chapter-meta">
-            <span class="chapter-index">01 Origin</span>
-            <span class="chapter-stamp">4 scenes</span>
-          </div>
-          <div class="chapter-lead">
-            <h2>How it started</h2>
-            <p class="chapter-standfirst">From scattered work context to something small tools can hold.</p>
-          </div>
-          <div class="chapter-body">
-            <p>Scroll to play the four scenes. The particles rewind just as cleanly.</p>
-          </div>
-        </div>
-
-        <div class="story">
-          <div class="story-track">
-            <div class="story-stage">
-              <canvas class="story-canvas" aria-hidden="true"></canvas>
-              <ol class="story-captions">
-                <li class="story-caption">
-                  <p class="story-kicker">Scene 01</p>
-                  <p class="story-line">Work context scatters<br>everywhere.</p>
-                </li>
-                <li class="story-caption">
-                  <p class="story-kicker">Scene 02</p>
-                  <p class="story-line">Small tools<br>give it shape.</p>
-                </li>
-                <li class="story-caption">
-                  <p class="story-kicker">Scene 03</p>
-                  <p class="story-line">Sometimes we borrow a cat&rsquo;s paw.</p>
-                </li>
-                <li class="story-caption">
-                  <p class="story-kicker">Scene 04</p>
-                  <p class="story-line">And ship all of it as OSS.</p>
-                </li>
-              </ol>
-              <div class="story-hud" aria-hidden="true">
-                <span class="story-scene-no">01</span>
-                <span class="story-progress"><span class="story-progress-fill"></span></span>
-                <span>04</span>
-              </div>
-            </div>
-          </div>
+        <div class="story-stage">
+          <canvas class="story-particles" aria-hidden="true"></canvas>
+          <div class="story-heading"><p class="eyebrow">A little tool makes a difference.</p><h2>Start small.<br><span>Change your day.</span></h2></div>
+          <ol class="story-scenes">
+            <li><span class="story-number">Bring context together.</span><p>Scattered context.<br><strong>One clear flow.</strong></p></li>
+            <li><span class="story-number">Make work lighter.</span><p>When you need a hand,<br><strong>just the right tool.</strong></p></li>
+            <li><span class="story-number">Keep possibilities open.</span><p>The joy of making.<br><strong>Open to everyone.</strong></p></li>
+          </ol>
+          <div class="story-progress" aria-hidden="true"><span></span></div>
         </div>
       </section>
-
-      <div class="marquee" aria-hidden="true">
-        <div class="marquee-track">
-          <p class="marquee-line">
-            <span>Work automation</span><span class="marquee-star">✦</span>
-            <span>AI-ready context</span><span class="marquee-star">✦</span>
-            <span>Small OSS tools</span><span class="marquee-star">✦</span>
-            <span>No build · no framework</span><span class="marquee-star">✦</span>
-            <span>Sometimes a cat's paw</span><span class="marquee-star">✦</span>
-          </p>
-          <p class="marquee-line">
-            <span>Work automation</span><span class="marquee-star">✦</span>
-            <span>AI-ready context</span><span class="marquee-star">✦</span>
-            <span>Small OSS tools</span><span class="marquee-star">✦</span>
-            <span>No build · no framework</span><span class="marquee-star">✦</span>
-            <span>Sometimes a cat's paw</span><span class="marquee-star">✦</span>
-          </p>
-        </div>
-      </div>
 
       <section id="projects" class="section chapter chapter--wide" data-chapter data-chapter-no="02" data-chapter-name="Works">
-        <div class="chapter-divider" aria-hidden="true">
-          <span class="chapter-spine"></span>
-          <span class="chapter-ghost">Works</span>
-          <p class="chapter-counter">
-            <span class="counter-label">Chapter 02</span>
-            <span class="counter-value">000</span>
-          </p>
-        </div>
         <div class="chapter-grid">
           <div class="chapter-meta">
-            <span class="chapter-index">02 Works</span>
-            <span class="chapter-stamp">2 released / 1 upcoming</span>
+            <span class="chapter-index">The collection</span>
+            <span class="chapter-stamp">2 open-source tools</span>
           </div>
           <div class="chapter-lead">
-            <h2>Projects</h2>
-            <p class="chapter-standfirst">Two released works and one upcoming project.</p>
+            <h2>A little tool.<br><span>A whole new possibility.</span></h2>
+            <p class="chapter-standfirst">Less checking. Less searching. More creating.</p>
           </div>
           <div class="chapter-body">
             <div class="card-grid">
-              <article class="card project-card">
-                <figure class="project-image">
-                  <img src="/assets/desktop-usage-meter.webp" alt="Visual concept for Desktop Usage Meter" width="900" height="600" loading="lazy" decoding="async">
+              <article class="card project-card project-card--meter">
+                <figure class="project-image product-demo product-demo--meter" role="img" aria-label="Illustrative preview of usage meters">
+                  <div class="demo-window" aria-hidden="true"><div class="demo-toolbar"><span class="demo-dots">● ● ●</span><span>Desktop Usage Meter</span><span>◌</span></div><div class="demo-greeting">A little more headroom.<strong>Keep your flow.</strong></div><div class="demo-meters"><div><div class="demo-ring demo-ring--claude"><span>42<small>%</small></span></div><span>Claude</span></div><div><div class="demo-ring demo-ring--codex"><span>28<small>%</small></span></div><span>Codex</span></div></div><div class="demo-bottom"><span>One glance. Back to creating.</span><span>↗</span></div></div>
+                  <figcaption>Illustrative preview</figcaption>
                 </figure>
                 <div class="card-top">
                   <h3>Desktop Usage Meter</h3>
                   <span class="status">Live</span>
                 </div>
-                <p class="project-meta">Desktop app / Electron</p>
+                <p class="product-benefit">Your usage.<br>At a glance.</p>
+                <p class="project-meta">01 — Desktop companion</p>
                 <p>A small desktop meter that shows Claude and Codex usage in a simple HUD.</p>
                 <p class="project-actions"><a class="project-link" href="https://github.com/ma0dev0/desktop-usage-meter" target="_blank" rel="noopener noreferrer">View on GitHub<span class="button-arrow" aria-hidden="true">↗</span></a></p>
               </article>
-              <article class="card project-card">
-                <figure class="project-image">
-                  <img src="/assets/quiet-links.webp" alt="Visual concept for Quiet Links" width="900" height="600" loading="lazy" decoding="async">
+              <article class="card project-card project-card--links">
+                <figure class="project-image product-demo product-demo--links" role="img" aria-label="Illustrative preview of a personal link dashboard">
+                  <div class="quiet-preview" aria-hidden="true"><div class="quiet-greeting"><span>Your little corner.</span><strong>A quieter start.</strong></div><div class="quiet-search">⌕ <span>Find your next stop</span><kbd>⌘ K</kbd></div><div class="quiet-tiles"><span><i>⌘</i>Code</span><span><i>✳</i>Create</span><span><i>◈</i>Read</span><span><i>☷</i>Notes</span><span><i>↗</i>Explore</span><span><i>＋</i>New link</span></div></div>
+                  <figcaption>Illustrative preview</figcaption>
                 </figure>
                 <div class="card-top">
                   <h3>Quiet Links</h3>
                   <span class="status">Live</span>
                 </div>
-                <p class="project-meta">Static site / Link dashboard</p>
+                <p class="product-benefit">Everything.<br>In its place.</p>
+                <p class="project-meta">02 — Your personal starting point</p>
                 <p>A minimal dark-mode personal link dashboard.</p>
                 <p class="project-actions"><a class="project-link" href="https://github.com/ma0dev0/quiet-links" target="_blank" rel="noopener noreferrer">View on GitHub<span class="button-arrow" aria-hidden="true">↗</span></a></p>
-              </article>
-              <article class="card project-card project-card--upcoming">
-                <figure class="project-image">
-                  <img src="/assets/dopasta.jpg" alt="Dopaneko, the mascot of Dopasta" width="900" height="600" loading="lazy" decoding="async">
-                </figure>
-                <div class="card-top">
-                  <h3 lang="ja">ドパスタ</h3>
-                  <span class="status status--soon">In progress</span>
-                </div>
-                <p class="project-meta">Music project / Learning EDM</p>
-                <p>A learning-music project that turns one junior-high English distinction at a time into a 90-second EDM track.</p>
-                <p class="project-actions"><span class="project-coming-soon">YouTube channel coming soon</span></p>
               </article>
             </div>
           </div>
@@ -264,21 +172,13 @@
       </section>
 
       <section id="about" class="section chapter" data-chapter data-chapter-no="03" data-chapter-name="Ground">
-        <div class="chapter-divider" aria-hidden="true">
-          <span class="chapter-spine"></span>
-          <span class="chapter-ghost">Ground</span>
-          <p class="chapter-counter">
-            <span class="counter-label">Chapter 03</span>
-            <span class="counter-value">000</span>
-          </p>
-        </div>
         <div class="chapter-grid">
           <div class="chapter-meta">
-            <span class="chapter-index">03 Ground</span>
+            <span class="chapter-index">Our approach</span>
             <span class="chapter-stamp">Principles</span>
           </div>
           <div class="chapter-lead">
-            <h2>About</h2>
+            <h2>Only what you need.<br><span>Everything you could imagine.</span></h2>
             <p class="chapter-standfirst">Light, hard to break, and quick to read.</p>
           </div>
           <div class="chapter-body">
@@ -289,21 +189,13 @@
       </section>
 
       <section id="links" class="section chapter chapter--wide" data-chapter data-chapter-no="04" data-chapter-name="Channels">
-        <div class="chapter-divider" aria-hidden="true">
-          <span class="chapter-spine"></span>
-          <span class="chapter-ghost">Channels</span>
-          <p class="chapter-counter">
-            <span class="counter-label">Chapter 04</span>
-            <span class="counter-value">000</span>
-          </p>
-        </div>
         <div class="chapter-grid">
           <div class="chapter-meta">
-            <span class="chapter-index">04 Channels</span>
+            <span class="chapter-index">Stay connected</span>
             <span class="chapter-stamp">6 links</span>
           </div>
           <div class="chapter-lead">
-            <h2>Links</h2>
+            <h2>Beyond the build.</h2>
             <p class="chapter-standfirst">Public profiles and where the work ships.</p>
           </div>
           <div class="chapter-body">
@@ -338,31 +230,24 @@
       </section>
 
       <section id="contact" class="section chapter" data-chapter data-chapter-no="05" data-chapter-name="Signal">
-        <div class="chapter-divider" aria-hidden="true">
-          <span class="chapter-spine"></span>
-          <span class="chapter-ghost">Signal</span>
-          <p class="chapter-counter">
-            <span class="counter-label">Chapter 05</span>
-            <span class="counter-value">000</span>
-          </p>
-        </div>
         <div class="chapter-grid">
           <div class="chapter-meta">
-            <span class="chapter-index">05 Signal</span>
+            <span class="chapter-index">Contact</span>
             <span class="chapter-stamp">Open</span>
           </div>
           <div class="chapter-lead">
-            <h2>Contact</h2>
+            <h2>Great things start<br><span>with a conversation.</span></h2>
             <p class="chapter-standfirst">The inbox is always open.</p>
           </div>
           <div class="chapter-body">
             <div class="card contact-card">
-              <p>Reach out through GitHub, X, or note first. I keep the email address obfuscated to reduce spam.</p>
+              <p>Have a question, an idea, or feedback on a tool? Get in touch.</p>
               <p class="contact-address" data-user="contact" data-domain="ma0.dev">contact [at] ma0.dev</p>
               <p class="contact-note">I keep the public contact path simple and low-noise.</p>
             </div>
           </div>
         </div>
+        <p class="contact-signature" aria-hidden="true">ma0.tools</p>
       </section>
     </main>
 
@@ -373,7 +258,7 @@
         <span aria-hidden="true">·</span>
         <a href="/dopasta-tiktok-mcp/terms/">Terms of Service</a>
       </p>
-      <p class="footer-tag">no build / no framework / latest CSS</p>
+      <p class="footer-tag">SMALL TOOLS. MORE POSSIBILITIES.</p>
     </footer>
   </div>
   <script type="module" src="/main.js"></script>

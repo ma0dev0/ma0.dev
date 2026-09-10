@@ -153,14 +153,15 @@ def verify() -> list[str]:
         if page.rail_refs != expected_rail:
             errors.append(f"{path}: chapter rail targets differ from the chapter sequence")
 
-    syntax = subprocess.run(
-        ["node", "--check", str(ROOT / "main.js")],
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    if syntax.returncode:
-        errors.append(f"main.js: syntax check failed\n{syntax.stderr.strip()}")
+    for script in ("main.js", "motion.js"):
+        syntax = subprocess.run(
+            ["node", "--check", str(ROOT / script)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if syntax.returncode:
+            errors.append(f"{script}: syntax check failed\n{syntax.stderr.strip()}")
 
     return errors
 
