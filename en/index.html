@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#101211">
+  <meta name="theme-color" content="#050508">
   <title>ma0 tools | Small OSS tools for work automation</title>
   <meta name="description" content="ma0 tools is a small OSS project building lightweight tools for work automation and AI-ready context.">
   <link rel="canonical" href="https://ma0.dev/en/">
@@ -24,11 +24,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&amp;family=JetBrains+Mono:wght@400;600;700&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/cinematic.css">
   <script type="speculationrules">
     {"prefetch":[{"source":"list","urls":["/","/links/","/en/","/en/links/"],"eagerness":"moderate"}]}
   </script>
 </head>
-<body>
+<body class="cinematic-page">
   <a class="skip-link" href="#top">Skip to content</a>
 
   <nav class="chapter-rail" aria-label="Chapter index">
@@ -92,48 +93,37 @@
     <main id="top">
       <section id="cover" class="hero chapter" data-chapter data-chapter-no="00" data-chapter-name="Cover">
         <div class="hero-content">
-          <p class="eyebrow">
-            <span class="eyebrow-dot" aria-hidden="true"></span>
-            INDEPENDENT DEVELOPER / OPEN SOURCE
-            <span class="eyebrow-sep" aria-hidden="true">·</span>
-            <span class="eyebrow-range">EST. ma0.dev</span>
-          </p>
-          <h1>Small tools.<br><span>More possibilities.</span></h1>
-          <p class="hero-copy">Less busywork.<br>More room to create.</p>
-          <p>I am a solo developer building lightweight tools for spreadsheets, Backlog, GAS, and other repetitive work that should stay simple.</p>
-          <p class="tagline">Tiny tools for people who want fewer repetitive tasks.</p>
+          <p class="eyebrow">ma0 tools</p>
+          <h1>Less friction.<br><span>More possibility.</span></h1>
+          <p class="hero-copy">Make more room for making.</p>
           <div class="hero-actions" role="group" aria-label="Primary links">
-            <a class="button primary-button" href="#projects">View works<span class="button-arrow" aria-hidden="true">↓</span></a>
-            <a class="button secondary-button" href="https://github.com/ma0dev0" target="_blank" rel="noopener noreferrer">GitHub<span class="button-arrow" aria-hidden="true">↗</span></a>
+            <a class="button primary-button" href="#projects">Explore the tools <span aria-hidden="true">↗</span></a>
+            <a class="button secondary-button" href="#chapter-origin">Discover the story <span aria-hidden="true">↓</span></a>
           </div>
         </div>
-
-        <div class="hero-visual">
-          <span class="art-index" aria-hidden="true">FIG. 001 / POSSIBILITIES</span>
-          <picture><source media="(max-width: 600px)" srcset="/assets/possibilities-800.webp"><img class="hero-art" src="/assets/possibilities.webp" alt="A continuous lime glass sculpture exploring new possibilities" width="1536" height="1024" fetchpriority="high" decoding="async"></picture>
-          <p class="hero-visual-caption"><span class="art-dot" aria-hidden="true"></span> SMALL TOOLS, OPEN POSSIBILITIES <span>↗</span></p>
+        <div class="hero-visual" role="img" aria-label="Small tools working together">
+          <div class="orb-fallback" aria-hidden="true"></div>
+          <canvas class="hero-particles" aria-hidden="true"></canvas>
+          <div class="tool-composition" aria-hidden="true">
+            <div class="floating-window context-window"><div class="window-bar"><i></i><i></i><i></i><span>Context</span></div><div class="context-lines"><span># A little more clarity.</span><span class="code-dim">sources: [work, ideas, notes]</span><span class="code-blue">→ ready for your next idea</span><span class="code-cursor">▍</span></div></div>
+            <div class="floating-window meter-window"><div class="window-bar"><i></i><i></i><i></i><span>Usage Meter</span></div><div class="meter-body"><div class="meter-orbit"><span>42<small>%</small></span></div><div class="meter-detail"><span>More room.</span><strong>Keep creating.</strong><div class="meter-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div><div class="window-bottom"><span>Claude + Codex</span><span>● Ready when you are</span></div></div>
+            <div class="floating-window links-window"><div class="window-bar"><i></i><i></i><i></i><span>Quiet Links</span></div><div class="mini-apps"><span>⌘</span><span>↗</span><span>✳</span><span>◈</span><span>☷</span><span>＋</span></div></div>
+          </div>
+          <p class="hero-visual-caption">Small open-source tools. A little lighter, every day.<span class="preview-note">Illustrative interface concepts</span></p>
         </div>
-        <div class="hero-bottom"><span>DESIGNED TO MAKE ROOM.</span><a href="#projects">Explore the work <span aria-hidden="true">↓</span></a><span>SCROLL TO DISCOVER</span></div>
+        <div class="hero-bottom"><a href="#chapter-origin"><span class="scroll-mouse" aria-hidden="true"></span>Scroll to see it come together.</a></div>
       </section>
-
       <section id="chapter-origin" class="chapter chapter--film" data-chapter data-chapter-no="01" data-chapter-name="Origin" aria-label="The ma0 tools story">
-        <div class="chapter-grid">
-          <div class="chapter-meta">
-            <span class="chapter-index">01 Origin</span>
-            <span class="chapter-stamp">THE IDEA</span>
-          </div>
-          <div class="chapter-lead">
-            <h2>How it started</h2>
-            <p class="chapter-standfirst">From scattered work context to something small tools can hold.</p>
-          </div>
-          <div class="chapter-body"><p>Spend less time on repetitive work, and leave more room for making things. One small experiment at a time.</p></div>
+        <div class="story-stage">
+          <canvas class="story-particles" aria-hidden="true"></canvas>
+          <div class="story-heading"><p class="eyebrow">THE SMALL THINGS CHANGE EVERYTHING.</p><h2>Start small.<br><span>Change your day.</span></h2></div>
+          <ol class="story-scenes">
+            <li><span class="story-number">01 / COLLECT</span><p>Scattered context.<br><strong>One clear flow.</strong></p></li>
+            <li><span class="story-number">02 / SIMPLIFY</span><p>When you need a hand,<br><strong>just the right tool.</strong></p></li>
+            <li><span class="story-number">03 / OPEN SOURCE</span><p>The joy of making.<br><strong>Open to everyone.</strong></p></li>
+          </ol>
+          <div class="story-progress" aria-hidden="true"><span></span></div>
         </div>
-
-        <ol class="principles-strip">
-          <li><span>01 / COLLECT</span><p>Gather the scattered pieces.</p></li>
-          <li><span>02 / SIMPLIFY</span><p>Make things a little simpler.</p></li>
-          <li><span>03 / SHARE</span><p>Share what you build.</p></li>
-        </ol>
       </section>
 
       <section id="projects" class="section chapter chapter--wide" data-chapter data-chapter-no="02" data-chapter-name="Works">
@@ -143,7 +133,7 @@
             <span class="chapter-stamp">2 released / 1 upcoming</span>
           </div>
           <div class="chapter-lead">
-            <h2>Selected <span>works.</span></h2>
+            <h2>A little tool.<br><span>A whole new possibility.</span></h2>
             <p class="chapter-standfirst">Two released works and one upcoming project.</p>
           </div>
           <div class="chapter-body">
@@ -202,7 +192,7 @@
             <span class="chapter-stamp">Principles</span>
           </div>
           <div class="chapter-lead">
-            <h2>Small by<br><span>design.</span></h2>
+            <h2>Only what you need.<br><span>Everything you could imagine.</span></h2>
             <p class="chapter-standfirst">Light, hard to break, and quick to read.</p>
           </div>
           <div class="chapter-body">
@@ -219,7 +209,7 @@
             <span class="chapter-stamp">6 links</span>
           </div>
           <div class="chapter-lead">
-            <h2>Elsewhere<span> ↗</span></h2>
+            <h2>Beyond the build.</h2>
             <p class="chapter-standfirst">Public profiles and where the work ships.</p>
           </div>
           <div class="chapter-body">
@@ -260,7 +250,7 @@
             <span class="chapter-stamp">Open</span>
           </div>
           <div class="chapter-lead">
-            <h2>Let’s make<br><span>room.</span></h2>
+            <h2>Great things start<br><span>with a conversation.</span></h2>
             <p class="chapter-standfirst">The inbox is always open.</p>
           </div>
           <div class="chapter-body">

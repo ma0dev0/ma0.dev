@@ -1,3 +1,5 @@
+import { startCinematicExperience } from "/motion.js";
+
 // Contact: assemble the address from parts (kept out of the raw HTML for spam
 // hygiene), swap the obfuscated text for a real mailto link, and add a copy button.
 const enhanceContact = () => {
@@ -135,7 +137,7 @@ const startChapterNavigation = (allowMotion) => {
       markCurrent(target);
       target.setAttribute("tabindex", "-1");
       target.focus({ preventScroll: true });
-      target.scrollIntoView({ behavior: allowMotion ? "smooth" : "instant", block: "start" });
+      target.scrollIntoView({ behavior: allowMotion && !matchMedia("(prefers-reduced-motion: reduce)").matches ? "smooth" : "instant", block: "start" });
 
       if (location.hash !== hash) {
         history.pushState(null, "", hash);
@@ -233,6 +235,7 @@ const startEnhancements = () => {
   const { navigateToHash, restoreHashPosition } = startChapterNavigation(allowMotion);
   startCommandPalette(navigateToHash);
   if (allowMotion) document.documentElement.classList.add("enhanced");
+  startCinematicExperience();
   restoreHashPosition?.();
   document.fonts?.ready.then(() => restoreHashPosition?.());
   window.addEventListener("hashchange", () => restoreHashPosition?.());

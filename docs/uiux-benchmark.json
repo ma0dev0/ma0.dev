@@ -1,48 +1,48 @@
 {
   "before": [
     {
-      "lcp": 764,
+      "lcp": 772,
       "cls": 0.004413559752700973,
       "bytes": 116831,
       "projectsTop": 5491,
-      "cpuMs": 2113
+      "cpuMs": 2001
     },
     {
       "lcp": 760,
       "cls": 0.004413559752700973,
       "bytes": 116831,
       "projectsTop": 5491,
-      "cpuMs": 1970
+      "cpuMs": 1988
     },
     {
       "lcp": 756,
       "cls": 0.004413559752700973,
       "bytes": 116831,
       "projectsTop": 5491,
-      "cpuMs": 2016
+      "cpuMs": 2019
     }
   ],
   "after": [
     {
-      "lcp": 908,
-      "cls": 0.001628948943137753,
-      "bytes": 192137,
-      "projectsTop": 1328,
-      "cpuMs": 121
+      "lcp": 540,
+      "cls": 0.001697211169145762,
+      "bytes": 164662,
+      "projectsTop": 2701,
+      "cpuMs": 762
     },
     {
-      "lcp": 904,
-      "cls": 0.001628948943137753,
-      "bytes": 192137,
-      "projectsTop": 1328,
-      "cpuMs": 126
+      "lcp": 532,
+      "cls": 0.001697211169145762,
+      "bytes": 164662,
+      "projectsTop": 2701,
+      "cpuMs": 753
     },
     {
-      "lcp": 912,
-      "cls": 0.001628948943137753,
-      "bytes": 192137,
-      "projectsTop": 1328,
-      "cpuMs": 123
+      "lcp": 540,
+      "cls": 0.001697211169145762,
+      "bytes": 164662,
+      "projectsTop": 2701,
+      "cpuMs": 766
     }
   ]
 }

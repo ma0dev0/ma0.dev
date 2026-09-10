@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
-  <meta name="theme-color" content="#101211">
+  <meta name="theme-color" content="#050508">
   <title>ma0 tools | Small OSS tools for work automation</title>
   <meta name="description" content="ma0 toolsは、業務自動化とAI-ready contextのための小さなOSS・開発者向けツールを作る個人開発プロジェクトです。">
   <link rel="canonical" href="https://ma0.dev/">
@@ -24,11 +24,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&amp;family=JetBrains+Mono:wght@400;600;700&amp;display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/cinematic.css">
   <script type="speculationrules">
     {"prefetch":[{"source":"list","urls":["/","/links/","/en/","/en/links/"],"eagerness":"moderate"}]}
   </script>
 </head>
-<body>
+<body class="cinematic-page">
   <a class="skip-link" href="#top">本文へスキップ</a>
 
   <nav class="chapter-rail" aria-label="章インデックス">
@@ -92,48 +93,37 @@
     <main id="top">
       <section id="cover" class="hero chapter" data-chapter data-chapter-no="00" data-chapter-name="Cover">
         <div class="hero-content">
-          <p class="eyebrow">
-            <span class="eyebrow-dot" aria-hidden="true"></span>
-            INDEPENDENT DEVELOPER / OPEN SOURCE
-            <span class="eyebrow-sep" aria-hidden="true">·</span>
-            <span class="eyebrow-range">EST. ma0.dev</span>
-          </p>
-          <h1>Small tools.<br><span>More possibilities.</span></h1>
-          <p class="hero-copy">小さな道具で、<br>できることを、もっと。</p>
-          <p>業務ツールの情報を、AIに渡しやすい形へ整える小さなOSS・開発者向けツールを作っています。</p>
-          <p class="tagline">猫の手も借りたい仕事に、小さな開発者ツールを。</p>
+          <p class="eyebrow">ma0 tools</p>
+          <h1>その手間に、<br><span>小さな魔法を。</span></h1>
+          <p class="hero-copy">つくる時間を、取り戻そう。</p>
           <div class="hero-actions" role="group" aria-label="主要リンク">
-            <a class="button primary-button" href="#projects">作品を見る<span class="button-arrow" aria-hidden="true">↓</span></a>
-            <a class="button secondary-button" href="https://github.com/ma0dev0" target="_blank" rel="noopener noreferrer">GitHub<span class="button-arrow" aria-hidden="true">↗</span></a>
+            <a class="button primary-button" href="#projects">ツールを見つける <span aria-hidden="true">↗</span></a>
+            <a class="button secondary-button" href="#chapter-origin">ストーリーを見る <span aria-hidden="true">↓</span></a>
           </div>
         </div>
-
-        <div class="hero-visual">
-          <span class="art-index" aria-hidden="true">FIG. 001 / POSSIBILITIES</span>
-          <picture><source media="(max-width: 600px)" srcset="/assets/possibilities-800.webp"><img class="hero-art" src="/assets/possibilities.webp" alt="ライム色のガラスがひとつにつながる、可能性を表現した彫刻" width="1536" height="1024" fetchpriority="high" decoding="async"></picture>
-          <p class="hero-visual-caption"><span class="art-dot" aria-hidden="true"></span> SMALL TOOLS, OPEN POSSIBILITIES <span>↗</span></p>
+        <div class="hero-visual" role="img" aria-label="小さなツールがつながるビジュアル">
+          <div class="orb-fallback" aria-hidden="true"></div>
+          <canvas class="hero-particles" aria-hidden="true"></canvas>
+          <div class="tool-composition" aria-hidden="true">
+            <div class="floating-window context-window"><div class="window-bar"><i></i><i></i><i></i><span>Context</span></div><div class="context-lines"><span># A little more clarity.</span><span class="code-dim">sources: [work, ideas, notes]</span><span class="code-blue">→ ready for your next idea</span><span class="code-cursor">▍</span></div></div>
+            <div class="floating-window meter-window"><div class="window-bar"><i></i><i></i><i></i><span>Usage Meter</span></div><div class="meter-body"><div class="meter-orbit"><span>42<small>%</small></span></div><div class="meter-detail"><span>More room.</span><strong>Keep creating.</strong><div class="meter-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div></div><div class="window-bottom"><span>Claude + Codex</span><span>● Ready when you are</span></div></div>
+            <div class="floating-window links-window"><div class="window-bar"><i></i><i></i><i></i><span>Quiet Links</span></div><div class="mini-apps"><span>⌘</span><span>↗</span><span>✳</span><span>◈</span><span>☷</span><span>＋</span></div></div>
+          </div>
+          <p class="hero-visual-caption">小さなOSSで、毎日を少し軽く。<span class="preview-note">画面は使用イメージです</span></p>
         </div>
-        <div class="hero-bottom"><span>DESIGNED TO MAKE ROOM.</span><a href="#projects">作品を探す <span aria-hidden="true">↓</span></a><span>SCROLL TO DISCOVER</span></div>
+        <div class="hero-bottom"><a href="#chapter-origin"><span class="scroll-mouse" aria-hidden="true"></span>スクロールで、つながる。</a></div>
       </section>
-
       <section id="chapter-origin" class="chapter chapter--film" data-chapter data-chapter-no="01" data-chapter-name="Origin" aria-label="ma0 tools のストーリー">
-        <div class="chapter-grid">
-          <div class="chapter-meta">
-            <span class="chapter-index">01 Origin</span>
-            <span class="chapter-stamp">THE IDEA</span>
-          </div>
-          <div class="chapter-lead">
-            <h2>はじまり</h2>
-            <p class="chapter-standfirst">散らばった業務の情報を、小さな道具でかたちにするまで。</p>
-          </div>
-          <div class="chapter-body"><p>面倒なことに使う時間を減らして、つくる時間を増やしたい。そのための小さな実験を重ねています。</p></div>
+        <div class="story-stage">
+          <canvas class="story-particles" aria-hidden="true"></canvas>
+          <div class="story-heading"><p class="eyebrow">THE SMALL THINGS CHANGE EVERYTHING.</p><h2>小さくつくる。<br><span>大きく変わる。</span></h2></div>
+          <ol class="story-scenes">
+            <li><span class="story-number">01 / COLLECT</span><p>散らばる情報を、<br><strong>ひとつの流れに。</strong></p></li>
+            <li><span class="story-number">02 / SIMPLIFY</span><p>猫の手も借りたい日に、<br><strong>ちょうどいい道具を。</strong></p></li>
+            <li><span class="story-number">03 / OPEN SOURCE</span><p>つくる楽しさを、<br><strong>すべての人に。</strong></p></li>
+          </ol>
+          <div class="story-progress" aria-hidden="true"><span></span></div>
         </div>
-
-        <ol class="principles-strip">
-          <li><span>01 / COLLECT</span><p>散らばった情報を集める。</p></li>
-          <li><span>02 / SIMPLIFY</span><p>小さな道具で、シンプルに。</p></li>
-          <li><span>03 / SHARE</span><p>つくったものを、ひらく。</p></li>
-        </ol>
       </section>
 
       <section id="projects" class="section chapter chapter--wide" data-chapter data-chapter-no="02" data-chapter-name="Works">
@@ -143,7 +133,7 @@
             <span class="chapter-stamp">2 released / 1 upcoming</span>
           </div>
           <div class="chapter-lead">
-            <h2>Selected <span>works.</span></h2>
+            <h2>できることが、<br><span>またひとつ。</span></h2>
             <p class="chapter-standfirst">公開中の2作品と、公開準備中の新作を紹介します。</p>
           </div>
           <div class="chapter-body">
@@ -202,7 +192,7 @@
             <span class="chapter-stamp">Principles</span>
           </div>
           <div class="chapter-lead">
-            <h2>Small by<br><span>design.</span></h2>
+            <h2>必要なものだけ。<br><span>可能性は、どこまでも。</span></h2>
             <p class="chapter-standfirst">軽く、壊れにくく、すぐ読める道具置き場。</p>
           </div>
           <div class="chapter-body">
@@ -219,7 +209,7 @@
             <span class="chapter-stamp">6 links</span>
           </div>
           <div class="chapter-lead">
-            <h2>Elsewhere<span> ↗</span></h2>
+            <h2>つくる。その先も。</h2>
             <p class="chapter-standfirst">公開しているプロフィールと配布先です。</p>
           </div>
           <div class="chapter-body">
@@ -260,7 +250,7 @@
             <span class="chapter-stamp">Open</span>
           </div>
           <div class="chapter-lead">
-            <h2>Let’s make<br><span>room.</span></h2>
+            <h2>次のアイデアは、<br><span>会話から。</span></h2>
             <p class="chapter-standfirst">連絡はいつでも受け付けています。</p>
           </div>
           <div class="chapter-body">

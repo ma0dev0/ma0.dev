@@ -165,7 +165,7 @@ test("content, images and primary navigation remain usable without JavaScript", 
   for (const path of ['/', '/en/']) {
     await page.goto(path);
     await expect(page.locator('h1')).toBeVisible();
-    await expect(page.locator('.hero-art')).toBeVisible();
+    await expect(page.locator('.hero-visual')).toBeVisible();
     await expect(page.locator('.project-filters')).toBeHidden();
     await page.locator('.primary-button').click();
     await expect(page).toHaveURL(/#projects$/);
@@ -207,4 +207,62 @@ test("Save-Data keeps deep links and search available without decorative enhance
   await expectTargetNearTop(page, 'projects');
   await page.locator('.nav-cmdk').click();
   await expect(page.locator('.cmdk-input')).toBeFocused();
+});
+
+const canvasHash = async (page, selector) => page.locator(selector).evaluate((canvas) => {
+  const pixels = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data;
+  let hash = 0;
+  for (let i = 0; i < pixels.length; i += 4) hash = (Math.imul(hash, 31) + pixels[i] + pixels[i + 3]) | 0;
+  return hash;
+});
+
+test('cinematic hero animates, pauses, and resumes without losing content', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('html')).toHaveAttribute('data-motion', 'running');
+  await expect.poll(() => canvasHash(page, '.hero-particles')).not.toBe(0);
+  const first = await canvasHash(page, '.hero-particles');
+  await expect.poll(() => canvasHash(page, '.hero-particles')).not.toBe(first);
+  await page.locator('.motion-control').click();
+  await expect(page.locator('html')).toHaveAttribute('data-motion', 'paused');
+  await expect(page.locator('html')).not.toHaveClass(/motion-ready/);
+  for (const scene of await page.locator('.story-scenes li').all()) await expect(scene).toBeVisible();
+  const paused = await canvasHash(page, '.hero-particles');
+  await page.waitForTimeout(200);
+  expect(await canvasHash(page, '.hero-particles')).toBe(paused);
+  await page.locator('.motion-control').click();
+  await expect(page.locator('html')).toHaveAttribute('data-motion', 'running');
+  await expect.poll(() => canvasHash(page, '.hero-particles')).not.toBe(paused);
+});
+
+test('scroll story rewinds deterministically and stays still when scrolling stops', async ({ page }) => {
+  await page.goto('/');
+  const go = async (fraction) => {
+    await page.locator('#chapter-origin').evaluate((section, p) => {
+      window.scrollTo({ top: section.offsetTop - 64 + p * (section.offsetHeight - (innerHeight - 64)), behavior: 'instant' });
+    }, fraction);
+    await expect.poll(() => page.locator('#chapter-origin').evaluate(e => Number(e.style.getPropertyValue('--story-progress')))).toBeCloseTo(fraction, 2);
+  };
+  await go(.1);
+  await expect.poll(() => canvasHash(page, '.story-particles')).not.toBe(0);
+  const beginning = await canvasHash(page, '.story-particles');
+  await go(.5);
+  await expect.poll(() => canvasHash(page, '.story-particles')).not.toBe(beginning);
+  await expect(page.locator('.story-scenes li').nth(1)).toHaveCSS('opacity', '1');
+  const middle = await canvasHash(page, '.story-particles');
+  await page.waitForTimeout(200);
+  expect(await canvasHash(page, '.story-particles')).toBe(middle);
+  await go(.1);
+  await expect.poll(() => canvasHash(page, '.story-particles')).toBe(beginning);
+});
+
+test('changing reduced-motion while the page is open restores all story text', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.locator('html')).toHaveClass(/motion-ready/);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(page.locator('html')).not.toHaveClass(/motion-ready/);
+  await expect(page.locator('.motion-control')).toBeHidden();
+  for (const scene of await page.locator('.story-scenes li').all()) await expect(scene).toBeVisible();
+  await page.locator('.primary-button').click();
+  await expectCurrentChapter(page, '#projects');
+  await expectTargetNearTop(page, 'projects');
 });
