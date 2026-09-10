@@ -239,21 +239,6 @@ const startEnhancements = () => {
   restoreHashPosition?.();
   document.fonts?.ready.then(() => restoreHashPosition?.());
   window.addEventListener("hashchange", () => restoreHashPosition?.());
-  const filters = document.querySelector(".project-filters");
-  if (filters) {
-    filters.hidden = false;
-    filters.addEventListener("click", (event) => {
-      const button = event.target.closest("[data-filter]");
-      if (!button) return;
-      filters.querySelectorAll("button").forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
-      let count = 0;
-      document.querySelectorAll(".project-card").forEach((card) => {
-        card.hidden = button.dataset.filter !== "all" && card.dataset.category !== button.dataset.filter;
-        if (!card.hidden) count++;
-      });
-      document.querySelector(".filter-result").textContent = document.documentElement.lang === "ja" ? `${count}件の作品を表示` : `${count} projects shown`;
-    });
-  }
 };
 
 // Command palette (⌘K): quick navigation across pages and external links.

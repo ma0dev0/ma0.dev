@@ -98,9 +98,6 @@
 .cinematic-page .chapter--wide .chapter-lead { align-items: end; gap: 36px; }
 .cinematic-page .chapter-standfirst { font-size: 16px; line-height: 1.8; color: var(--muted); }
 .cinematic-page .chapter-body { margin-top: 40px; }
-.cinematic-page .project-filters { gap: 8px; margin-bottom: 28px; }
-.cinematic-page .project-filters button { color: #57575e; background: #e8e8ed; border: 0; font-size: 12px; min-height: 42px; padding: 9px 20px; }
-.cinematic-page .project-filters button[aria-pressed="true"] { color: white; background: #23232a; }
 .cinematic-page .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
 .cinematic-page .project-card { border-radius: 30px; overflow: hidden; padding: 0 32px 20px; background: #fff; color: #1d1d1f; box-shadow: 0 10px 35px #00000004; transition: transform .6s cubic-bezier(.2,.8,.2,1), box-shadow .6s; }
 .cinematic-page .project-card:hover { transform: translateY(-7px); box-shadow: 0 20px 40px #0000000b; }
@@ -190,7 +187,6 @@
   .cinematic-page .project-card:first-child .card-top { margin-top: 24px; }
   .cinematic-page .project-card:first-child .project-actions { margin-bottom: 0; }
   .cinematic-page h3 { font-size: 23px; }
-  .cinematic-page .project-filters button { padding: 8px 16px; }
   .cinematic-page .links-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
   .cinematic-page .link-card { padding: 20px 16px; border-radius: 18px; }
   .cinematic-page .card-label-row { font-size: 19px; }
@@ -306,3 +302,62 @@
   .cinematic-page .story-heading h2 { font-size: 30px; }
   .story-heading .eyebrow, .story-number { font-size: 11px; }
 }
+
+/* Two tools, two distinct environments. Everything is visible without motion. */
+.cinematic-page .hero { background: radial-gradient(ellipse at 50% 66%, #25355736, transparent 58%); }
+.cinematic-page .hero::before { content: ''; position: absolute; inset: 15% 12% 10%; border-radius: 50%; background: radial-gradient(ellipse, #7187ed0c, transparent 68%); pointer-events: none; z-index: -1; }
+.cinematic-page .hero-visual { max-width: 1180px; }
+.floating-window { border-color: #d4e2ff38; box-shadow: 0 32px 75px #0009, inset 0 1px 0 #ffffff40, 0 0 40px #7a8cff08; }
+.cinematic-page .primary-button { box-shadow: inset 0 1px 0 #ffffff35, 0 8px 28px #0874ff23; }
+.cinematic-page #projects { background: #f2f3f5; border-radius: 48px 48px 0 0; position: relative; }
+.cinematic-page #projects .chapter-lead { max-width: 850px; }
+.cinematic-page #projects .chapter-body { margin-top: 56px; }
+.cinematic-page #projects .card-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+.cinematic-page #projects .project-card { position: relative; display: grid; grid-template-columns: 1fr 1.05fr; grid-template-rows: auto auto auto auto 1fr; gap: 0 24px; padding: 60px 0 52px 56px; min-height: 550px; border-radius: 32px; isolation: isolate; border: 1px solid #ffffff18; }
+.cinematic-page #projects .project-card:hover { transform: none; box-shadow: none; }
+.cinematic-page #projects .project-card .card-top { grid-column: 1; margin: 0; justify-content: flex-start; gap: 18px; }
+.cinematic-page #projects .project-card > p { grid-column: 1; position: relative; z-index: 1; }
+.cinematic-page #projects .project-card h3 { font-size: 15px; color: inherit; letter-spacing: -.2px; }
+.cinematic-page #projects .product-benefit { font-size: clamp(32px, 4cqw, 52px); line-height: 1.22; margin-top: 30px; letter-spacing: -.055em; }
+.cinematic-page #projects .project-meta { margin-top: 24px; font-size: 11px; letter-spacing: .025em; }
+.cinematic-page #projects .project-card > p:not([class]) { max-width: 330px; margin-top: 16px; font-size: 14px; line-height: 1.9; }
+.cinematic-page #projects .project-actions { align-self: end; padding-top: 32px; margin: 0; }
+.cinematic-page #projects .project-link { display: inline-flex; gap: 26px; align-items: center; border: 1px solid currentColor; border-radius: 28px; padding: 11px 20px; min-height: 44px; transition: background .25s; }
+.cinematic-page #projects .project-link:hover { background: #7a9add18; }
+.cinematic-page #projects .project-image.product-demo { grid-column: 2; grid-row: 1 / 6; min-height: 430px; margin: -60px 0 -52px; padding: 70px 32px; overflow: hidden; }
+.cinematic-page #projects .project-card--meter { color: #d0ddf7; background: radial-gradient(ellipse at 95% 80%, #243a6d, #101928 64%, #10151f); }
+.cinematic-page #projects .project-card--meter .product-benefit { color: #f4f6ff; }
+.cinematic-page #projects .project-card--meter :is(.project-meta, p:not([class])) { color: #afbdd4; }
+.cinematic-page #projects .project-card--meter .status { color: #a1d9c0; }
+.cinematic-page #projects .project-card--meter .project-link { color: #b9d2ff; }
+.cinematic-page #projects .product-demo--meter { background: transparent !important; }
+.product-demo--meter::before { content: ''; position: absolute; width: 430px; height: 430px; border-radius: 50%; border: 1px solid #b3cbff26; box-shadow: 0 0 0 50px #9bb7fc05, 0 0 0 100px #9bb7fc04; transform: rotateX(55deg) rotateZ(-25deg); z-index: -1; }
+.cinematic-page #projects .demo-window { width: min(100%, 385px); background: linear-gradient(135deg, #4d608280, #192234e8 65%); backdrop-filter: blur(20px); border-color: #c3d7ff45; box-shadow: 0 42px 60px -16px #0009, inset 0 1px 0 #e8f1ff55; transform: perspective(1100px) rotateY(-15deg) rotateX(8deg) rotateZ(-7deg); }
+.cinematic-page #projects .project-card--meter:hover .demo-window { transform: perspective(1100px) rotateY(-5deg) rotateX(3deg) rotateZ(-3deg) translateY(-6px); }
+.cinematic-page #projects .product-demo--meter figcaption { color: #b3c1d9; }
+.cinematic-page #projects .project-card--links { grid-template-columns: 1.05fr 1fr; padding: 60px 56px 52px 0; background: radial-gradient(ellipse at 0% 80%, #d4dfc9, #eef2e8 60%, #f7f9f3); color: #374a38; }
+.cinematic-page #projects .project-card--links .card-top, .cinematic-page #projects .project-card--links > p { grid-column: 2; }
+.cinematic-page #projects .project-card--links .project-image { grid-column: 1; }
+.cinematic-page #projects .product-demo--links { background: transparent !important; }
+.cinematic-page #projects .project-card--links .product-benefit { color: #293e2f; }
+.cinematic-page #projects .project-card--links .project-link { color: #35593a; }
+.cinematic-page #projects .quiet-preview { width: min(100%, 370px); padding: 32px; background: #fbfff3d9; border-color: #fff; box-shadow: 0 35px 65px -20px #4d63474d, inset 0 1px 0 white; transform: perspective(1000px) rotateY(12deg) rotateX(6deg) rotateZ(5deg); }
+.cinematic-page #projects .project-card--links:hover .quiet-preview { transform: perspective(1000px) rotateY(3deg) rotateX(2deg) rotateZ(1deg) translateY(-6px); }
+.cinematic-page #about { background: radial-gradient(ellipse at 50% 105%, #293453, #0b0d16 48%, #050508 80%); }
+.cinematic-page .link-card { border: 1px solid #e3e5eb; background: linear-gradient(145deg, white, #f9fafd); }
+.cinematic-page .link-card:focus-visible, .cinematic-page .project-link:focus-visible { outline: 3px solid #3479db; outline-offset: 5px; }
+@media (max-width: 760px) {
+  .cinematic-page #projects { border-radius: 28px 28px 0 0; }
+  .cinematic-page #projects .chapter-body { margin-top: 32px; }
+  .cinematic-page #projects .project-card { display: flex; flex-direction: column; min-height: 0; padding: 32px 24px; gap: 0; border-radius: 24px; }
+  .cinematic-page #projects .project-card .card-top { order: 0; flex-wrap: wrap; gap: 8px 16px; }
+  .cinematic-page #projects .product-benefit { order: 1; font-size: clamp(30px, 8cqw, 44px); margin-top: 22px; }
+  .cinematic-page #projects .project-image.product-demo { order: 2; min-height: 325px; margin: 10px -24px 0; padding: 34px 30px 42px; }
+  .cinematic-page #projects .project-meta { order: 3; margin-top: 12px; }
+  .cinematic-page #projects .project-card > p:not([class]) { order: 4; margin-top: 12px; }
+  .cinematic-page #projects .project-actions { order: 5; align-self: flex-start; padding-top: 24px; }
+  .cinematic-page #projects .demo-window { max-width: 330px; }
+  .cinematic-page #projects .quiet-preview { max-width: 320px; padding: 24px; }
+  .cinematic-page #projects .product-demo figcaption { bottom: 10px; }
+}
+.motion-paused .project-card *, .motion-paused .project-card *::before { transition: none !important; }

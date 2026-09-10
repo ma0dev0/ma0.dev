@@ -84,10 +84,6 @@ h2 span { color: var(--muted); }
 .chapter--wide .chapter-body { grid-column: 1 / -1; }
 .chapter--wide .chapter-lead { display: flex; align-items: center; justify-content: space-between; gap: 32px; }
 .chapter--wide .chapter-standfirst { max-width: 350px; margin: 0; }
-.project-filters { display: flex; gap: 8px; margin: 0 0 24px; }
-.project-filters button { border: 1px solid var(--line); border-radius: 50px; min-height: 40px; background: transparent; color: var(--muted); padding: 7px 17px; font-size: 11px; }
-.project-filters button span { margin-left: 12px; font: 9px var(--mono); }
-.project-filters button[aria-pressed="true"] { color: var(--bg); background: var(--accent); border-color: var(--accent); }
 .card-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; }
 .project-card { position: relative; min-width: 0; display: flex; flex-direction: column; color: var(--text); }
 .project-image { background: #222622; overflow: hidden; border-radius: 8px; border: 1px solid var(--line); }

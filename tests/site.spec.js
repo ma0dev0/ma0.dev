@@ -129,20 +129,18 @@ test("all routes load without browser errors and project images decode", async (
   expect(problems).toEqual([]);
 });
 
-test("project filters work with keyboard and announce the result in both languages", async ({ page }) => {
+test("both released products are directly reachable without category controls", async ({ page }) => {
   for (const path of ["/", "/en/"]) {
-    await page.goto(path);
-    const music = page.locator('[data-filter="music"]');
-    await music.focus();
-    await page.keyboard.press("Enter");
-    await expect(music).toHaveAttribute("aria-pressed", "true");
-    await expect(page.locator('.project-card:visible')).toHaveCount(1);
-    await expect(page.locator('.project-card:visible')).toHaveAttribute('data-category', 'music');
-    await expect(page.locator('.filter-result')).toContainText('1');
-    await page.locator('[data-filter="tools"]').click();
-    await expect(page.locator('.project-card:visible')).toHaveCount(2);
-    await page.locator('[data-filter="all"]').click();
-    await expect(page.locator('.project-card:visible')).toHaveCount(3);
+    await page.goto(path + '#projects');
+    await expect(page.locator('.project-card')).toHaveCount(2);
+    await expect(page.locator('#projects')).not.toContainText('ドパスタ');
+    await expect(page.locator('.project-filters')).toHaveCount(0);
+    const links = page.locator('.project-link');
+    await expect(links.nth(0)).toHaveAttribute('href', 'https://github.com/ma0dev0/desktop-usage-meter');
+    await expect(links.nth(1)).toHaveAttribute('href', 'https://github.com/ma0dev0/quiet-links');
+    await links.nth(1).focus();
+    await expect(links.nth(1)).toBeFocused();
+    await expect(links.nth(1)).toBeInViewport();
   }
 });
 
@@ -169,7 +167,7 @@ test("content, images and primary navigation remain usable without JavaScript", 
     await expect(page.locator('.project-filters')).toBeHidden();
     await page.locator('.primary-button').click();
     await expect(page).toHaveURL(/#projects$/);
-    await expect(page.locator('.project-card:visible')).toHaveCount(3);
+    await expect(page.locator('.project-card:visible')).toHaveCount(2);
     await expect(page.locator('.contact-address')).toContainText('[at]');
   }
   await context.close();
